@@ -48,6 +48,9 @@ fmt: ## Format all Go code
 	@echo "Formatting code..."
 	@go fmt ./...
 
+go-fmt:
+	@gofmt -s -l contracts/fusion_swap_contract.go;
+
 vet: ## Run go vet
 	@echo "Running go vet..."
 	@go vet ./...

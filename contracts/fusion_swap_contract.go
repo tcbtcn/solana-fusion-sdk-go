@@ -75,17 +75,17 @@ func (f *FusionSwapContract) Create(
 
 	accountMetas := []types.AccountMeta{
 		// 0. system_program
-		types.AccountMeta{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false},
+		{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false},
 		// 1. escrow
-		types.AccountMeta{Pubkey: escrow, IsSigner: false, IsWritable: false},
+		{Pubkey: escrow, IsSigner: false, IsWritable: false},
 		// 2. src_mint
-		types.AccountMeta{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
+		{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
 		// 3. src_token_program
-		types.AccountMeta{Pubkey: accounts.SrcTokenProgram, IsSigner: false, IsWritable: false},
+		{Pubkey: accounts.SrcTokenProgram, IsSigner: false, IsWritable: false},
 		// 4. escrow_src_ata
-		types.AccountMeta{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
+		{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
 		// 5. maker
-		types.AccountMeta{Pubkey: accounts.Maker, IsSigner: true, IsWritable: true},
+		{Pubkey: accounts.Maker, IsSigner: true, IsWritable: true},
 	}
 
 	// 6. maker_src_ata (optional if native)
@@ -196,31 +196,31 @@ func (f *FusionSwapContract) Fill(
 
 	accountMetas := []types.AccountMeta{
 		// 0. taker
-		types.AccountMeta{Pubkey: accounts.Taker, IsSigner: true, IsWritable: true},
+		{Pubkey: accounts.Taker, IsSigner: true, IsWritable: true},
 		// 1. resolver_access
-		types.AccountMeta{Pubkey: resolverAccess, IsSigner: false, IsWritable: false},
+		{Pubkey: resolverAccess, IsSigner: false, IsWritable: false},
 		// 2. maker
-		types.AccountMeta{Pubkey: accounts.Maker, IsSigner: false, IsWritable: true},
+		{Pubkey: accounts.Maker, IsSigner: false, IsWritable: true},
 		// 3. maker_receiver
-		types.AccountMeta{Pubkey: order.Receiver(), IsSigner: false, IsWritable: order.DstAssetIsNative() || !accounts.Maker.Equal(order.Receiver())},
+		{Pubkey: order.Receiver(), IsSigner: false, IsWritable: order.DstAssetIsNative() || !accounts.Maker.Equal(order.Receiver())},
 		// 4. src_mint
-		types.AccountMeta{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
+		{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
 		// 5. dst_mint
-		types.AccountMeta{Pubkey: order.DstMint(), IsSigner: false, IsWritable: false},
+		{Pubkey: order.DstMint(), IsSigner: false, IsWritable: false},
 		// 6. escrow
-		types.AccountMeta{Pubkey: escrow, IsSigner: false, IsWritable: false},
+		{Pubkey: escrow, IsSigner: false, IsWritable: false},
 		// 7. escrow_src_ata
-		types.AccountMeta{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
+		{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
 		// 8. taker_src_ata
-		types.AccountMeta{Pubkey: takerSrcAta, IsSigner: false, IsWritable: true},
+		{Pubkey: takerSrcAta, IsSigner: false, IsWritable: true},
 		// 9. src_token_program
-		types.AccountMeta{Pubkey: accounts.SrcTokenProgram, IsSigner: false, IsWritable: false},
+		{Pubkey: accounts.SrcTokenProgram, IsSigner: false, IsWritable: false},
 		// 10. dst_token_program
-		types.AccountMeta{Pubkey: accounts.DstTokenProgram, IsSigner: false, IsWritable: false},
+		{Pubkey: accounts.DstTokenProgram, IsSigner: false, IsWritable: false},
 		// 11. system_program
-		types.AccountMeta{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false},
+		{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false},
 		// 12. associated_token_program
-		types.AccountMeta{Pubkey: domains.ASSOCIATED_TOKEN_PROGRAM_ID, IsSigner: false, IsWritable: false},
+		{Pubkey: domains.ASSOCIATED_TOKEN_PROGRAM_ID, IsSigner: false, IsWritable: false},
 	}
 
 	// 13. maker_dst_ata (optional if native)
@@ -329,13 +329,13 @@ func (f *FusionSwapContract) CancelOwnOrder(
 
 	accountMetas := []types.AccountMeta{
 		// 1. maker
-		types.AccountMeta{Pubkey: accounts.Maker, IsSigner: true, IsWritable: true},
+		{Pubkey: accounts.Maker, IsSigner: true, IsWritable: true},
 		// 2. src_mint
-		types.AccountMeta{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
+		{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
 		// 3. escrow
-		types.AccountMeta{Pubkey: escrow, IsSigner: false, IsWritable: false},
+		{Pubkey: escrow, IsSigner: false, IsWritable: false},
 		// 4. escrow_src_ata
-		types.AccountMeta{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
+		{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
 	}
 
 	// 5. maker_src_ata (optional if native)
@@ -429,21 +429,21 @@ func (f *FusionSwapContract) CancelOrderByResolver(
 
 	accountMetas := []types.AccountMeta{
 		// 1. resolver
-		types.AccountMeta{Pubkey: accounts.Resolver, IsSigner: true, IsWritable: true},
+		{Pubkey: accounts.Resolver, IsSigner: true, IsWritable: true},
 		// 2. resolver_access
-		types.AccountMeta{Pubkey: resolverAccess, IsSigner: false, IsWritable: false},
+		{Pubkey: resolverAccess, IsSigner: false, IsWritable: false},
 		// 3. maker
-		types.AccountMeta{Pubkey: accounts.Maker, IsSigner: false, IsWritable: true},
+		{Pubkey: accounts.Maker, IsSigner: false, IsWritable: true},
 		// 4. maker_receiver
-		types.AccountMeta{Pubkey: order.Receiver(), IsSigner: false, IsWritable: order.SrcAssetIsNative()},
+		{Pubkey: order.Receiver(), IsSigner: false, IsWritable: order.SrcAssetIsNative()},
 		// 5. src_mint
-		types.AccountMeta{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
+		{Pubkey: order.SrcMint(), IsSigner: false, IsWritable: false},
 		// 6. dst_mint
-		types.AccountMeta{Pubkey: order.DstMint(), IsSigner: false, IsWritable: false},
+		{Pubkey: order.DstMint(), IsSigner: false, IsWritable: false},
 		// 7. escrow
-		types.AccountMeta{Pubkey: escrow, IsSigner: false, IsWritable: false},
+		{Pubkey: escrow, IsSigner: false, IsWritable: false},
 		// 8. escrow_src_ata
-		types.AccountMeta{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
+		{Pubkey: escrowSrcAta, IsSigner: false, IsWritable: true},
 	}
 
 	// 9. maker_src_ata (optional if native)
