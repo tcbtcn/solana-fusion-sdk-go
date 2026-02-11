@@ -419,4 +419,3 @@ func TestFusionOrder_AccessorMethods_WithFees(t *testing.T) {
 		t.Error("Expected non-nil ProtocolDstAta")
 	}
 }
-

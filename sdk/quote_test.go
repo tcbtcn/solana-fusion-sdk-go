@@ -16,13 +16,13 @@ func TestQuoteFromJSON_Success(t *testing.T) {
 		DstAmount: "1420000000",
 		Presets: quoter.PresetsDTO{
 			Fast: quoter.PresetDTO{
-				StartAuctionIn:    10,
-				AuctionDuration:   180,
-				InitialRateBump:  0,
+				StartAuctionIn:     10,
+				AuctionDuration:    180,
+				InitialRateBump:    0,
 				AuctionStartAmount: "1500000000",
 				AuctionEndAmount:   "1420000000",
-				CostInDstToken:    "0",
-				Points:            []quoter.PresetPointDTO{},
+				CostInDstToken:     "0",
+				Points:             []quoter.PresetPointDTO{},
 			},
 		},
 		RecommendedPreset:  quoter.PresetTypeFast,
@@ -117,7 +117,7 @@ func TestQuote_ToOrder_Success(t *testing.T) {
 			Fast: quoter.PresetDTO{
 				StartAuctionIn:     10,
 				AuctionDuration:    180,
-				InitialRateBump:   0,
+				InitialRateBump:    0,
 				AuctionStartAmount: "1500000000",
 				AuctionEndAmount:   "1420000000",
 				CostInDstToken:     "0",
@@ -158,7 +158,7 @@ func TestQuote_ToOrder_WithReceiver(t *testing.T) {
 			Fast: quoter.PresetDTO{
 				StartAuctionIn:     10,
 				AuctionDuration:    180,
-				InitialRateBump:   0,
+				InitialRateBump:    0,
 				AuctionStartAmount: "1500000000",
 				AuctionEndAmount:   "1420000000",
 				CostInDstToken:     "0",
@@ -197,7 +197,7 @@ func TestQuote_ToOrder_DefaultPreset(t *testing.T) {
 			Fast: quoter.PresetDTO{
 				StartAuctionIn:     10,
 				AuctionDuration:    180,
-				InitialRateBump:   0,
+				InitialRateBump:    0,
 				AuctionStartAmount: "1500000000",
 				AuctionEndAmount:   "1420000000",
 				CostInDstToken:     "0",

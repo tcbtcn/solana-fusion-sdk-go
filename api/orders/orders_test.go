@@ -68,7 +68,7 @@ func TestOrdersApi_GetOrderStatus_Success(t *testing.T) {
 			},
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(status)
+		_ = json.NewEncoder(w).Encode(status)
 	}))
 	defer server.Close()
 
@@ -97,7 +97,7 @@ func TestOrdersApi_GetOrderStatus_Success(t *testing.T) {
 func TestOrdersApi_GetOrderStatus_NotFound(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Order not found"))
+		_, _ = w.Write([]byte("Order not found"))
 	}))
 	defer server.Close()
 
@@ -161,7 +161,7 @@ func TestOrdersApi_GetActiveOrders_Success(t *testing.T) {
 			},
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(result)
+		_ = json.NewEncoder(w).Encode(result)
 	}))
 	defer server.Close()
 
@@ -199,7 +199,7 @@ func TestOrdersApi_GetActiveOrders_Empty(t *testing.T) {
 			Items: []OrderInfoDTO{},
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(result)
+		_ = json.NewEncoder(w).Encode(result)
 	}))
 	defer server.Close()
 
@@ -266,7 +266,7 @@ func TestOrdersApi_GetOrdersCancellableByResolver_Success(t *testing.T) {
 			},
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(result)
+		_ = json.NewEncoder(w).Encode(result)
 	}))
 	defer server.Close()
 

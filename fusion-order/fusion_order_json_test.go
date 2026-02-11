@@ -128,21 +128,21 @@ func TestFusionOrder_ToJSON_WithFees(t *testing.T) {
 
 func TestFromJSON_Success(t *testing.T) {
 	json := &FusionOrderJSON{
-		ID:                         1,
-		Receiver:                   "11111111111111111111111111111111",
+		ID:                          1,
+		Receiver:                    "11111111111111111111111111111111",
 		CancellationAuctionDuration: 100,
 		SrcMint:                     "So11111111111111111111111111111111111111112",
 		DstMint:                     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 		SrcAmount:                   "1000000000000000000",
 		MinDstAmount:                "1420000000",
-		EstimatedDstAmount:         "1420000000",
+		EstimatedDstAmount:          "1420000000",
 		ExpirationTime:              1000000000,
 		SrcAssetIsNative:            false,
 		DstAssetIsNative:            false,
 		Fee: FeeJSON{
-			ProtocolFee:       0,
-			IntegratorFee:     0,
-			SurplusPercentage: 0,
+			ProtocolFee:            0,
+			IntegratorFee:          0,
+			SurplusPercentage:      0,
 			MaxCancellationPremium: "1000000",
 		},
 		DutchAuctionData: DutchAuctionDataJSON{
@@ -170,21 +170,21 @@ func TestFromJSON_Success(t *testing.T) {
 
 func TestFromJSON_InvalidAddress(t *testing.T) {
 	json := &FusionOrderJSON{
-		ID:                         1,
-		Receiver:                   "invalid-address",
+		ID:                          1,
+		Receiver:                    "invalid-address",
 		CancellationAuctionDuration: 100,
 		SrcMint:                     "So11111111111111111111111111111111111111112",
 		DstMint:                     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 		SrcAmount:                   "1000000000000000000",
 		MinDstAmount:                "1420000000",
-		EstimatedDstAmount:         "1420000000",
+		EstimatedDstAmount:          "1420000000",
 		ExpirationTime:              1000000000,
 		SrcAssetIsNative:            false,
 		DstAssetIsNative:            false,
 		Fee: FeeJSON{
-			ProtocolFee:       0,
-			IntegratorFee:     0,
-			SurplusPercentage: 0,
+			ProtocolFee:            0,
+			IntegratorFee:          0,
+			SurplusPercentage:      0,
 			MaxCancellationPremium: "1000000",
 		},
 		DutchAuctionData: DutchAuctionDataJSON{
@@ -203,21 +203,21 @@ func TestFromJSON_InvalidAddress(t *testing.T) {
 
 func TestFromJSON_InvalidAmount(t *testing.T) {
 	json := &FusionOrderJSON{
-		ID:                         1,
-		Receiver:                   "11111111111111111111111111111111",
+		ID:                          1,
+		Receiver:                    "11111111111111111111111111111111",
 		CancellationAuctionDuration: 100,
 		SrcMint:                     "So11111111111111111111111111111111111111112",
 		DstMint:                     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 		SrcAmount:                   "invalid",
 		MinDstAmount:                "1420000000",
-		EstimatedDstAmount:         "1420000000",
+		EstimatedDstAmount:          "1420000000",
 		ExpirationTime:              1000000000,
 		SrcAssetIsNative:            false,
 		DstAssetIsNative:            false,
 		Fee: FeeJSON{
-			ProtocolFee:       0,
-			IntegratorFee:     0,
-			SurplusPercentage: 0,
+			ProtocolFee:            0,
+			IntegratorFee:          0,
+			SurplusPercentage:      0,
 			MaxCancellationPremium: "1000000",
 		},
 		DutchAuctionData: DutchAuctionDataJSON{

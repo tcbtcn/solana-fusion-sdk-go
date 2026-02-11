@@ -203,7 +203,7 @@ func (c *WebSocketClient) Ping() {
 	c.mu.RUnlock()
 
 	if conn != nil {
-				_ = conn.WriteMessage(websocket.PingMessage, []byte{})
+		_ = conn.WriteMessage(websocket.PingMessage, []byte{})
 	}
 }
 
@@ -222,7 +222,7 @@ func (c *WebSocketClient) OnPong(cb OnPongCb) {
 // Close closes the WebSocket connection
 func (c *WebSocketClient) Close() error {
 	c.mu.Lock()
-	
+
 	var err error
 	if c.conn != nil {
 		err = c.conn.Close()

@@ -25,9 +25,9 @@ func TestOrderStatusFromJSON_Success(t *testing.T) {
 			SrcAssetIsNative:            false,
 			DstAssetIsNative:            false,
 			Fee: orders.FeeDTO{
-				ProtocolFee:           0,
-				IntegratorFee:         0,
-				SurplusPercentage:     0,
+				ProtocolFee:            0,
+				IntegratorFee:          0,
+				SurplusPercentage:      0,
 				MaxCancellationPremium: "0",
 			},
 			DutchAuctionData: orders.DutchAuctionDataDTO{
@@ -82,9 +82,9 @@ func TestOrderStatusFromJSON_WithFills(t *testing.T) {
 			SrcAssetIsNative:            false,
 			DstAssetIsNative:            false,
 			Fee: orders.FeeDTO{
-				ProtocolFee:           0,
-				IntegratorFee:         0,
-				SurplusPercentage:     0,
+				ProtocolFee:            0,
+				IntegratorFee:          0,
+				SurplusPercentage:      0,
 				MaxCancellationPremium: "0",
 			},
 			DutchAuctionData: orders.DutchAuctionDataDTO{
@@ -142,9 +142,9 @@ func TestOrderStatusFromJSON_InvalidMaker(t *testing.T) {
 			SrcAssetIsNative:            false,
 			DstAssetIsNative:            false,
 			Fee: orders.FeeDTO{
-				ProtocolFee:           0,
-				IntegratorFee:         0,
-				SurplusPercentage:     0,
+				ProtocolFee:            0,
+				IntegratorFee:          0,
+				SurplusPercentage:      0,
 				MaxCancellationPremium: "0",
 			},
 			DutchAuctionData: orders.DutchAuctionDataDTO{

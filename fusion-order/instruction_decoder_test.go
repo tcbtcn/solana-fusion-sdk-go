@@ -279,19 +279,19 @@ func TestFromResolverCancelInstruction(t *testing.T) {
 	instruction := types.NewTransactionInstruction(
 		programID,
 		[]types.AccountMeta{
-			{Pubkey: resolver, IsSigner: true, IsWritable: true},                    // 0: resolver
+			{Pubkey: resolver, IsSigner: true, IsWritable: true},                                                            // 0: resolver
 			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: false}, // 1: resolverAccess
-			{Pubkey: maker, IsSigner: false, IsWritable: true},                      // 2: maker
+			{Pubkey: maker, IsSigner: false, IsWritable: true},                                                              // 2: maker
 			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: false}, // 3: makerReceiver
-			{Pubkey: originalOrder.SrcMint(), IsSigner: false, IsWritable: false},    // 4: srcMint
-			{Pubkey: originalOrder.DstMint(), IsSigner: false, IsWritable: false},   // 5: dstMint
-			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true}, // 6: escrow
-			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true}, // 7: escrowSrcAta
-			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true}, // 8: makerSrcAta (optional)
-			{Pubkey: domains.TOKEN_PROGRAM_ID, IsSigner: false, IsWritable: false},  // 9: srcTokenProgram
-			{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false}, // 10: systemProgram
-			{Pubkey: programID, IsSigner: false, IsWritable: false}, // 11: protocolDstAta (optional, use programID when nil)
-			{Pubkey: programID, IsSigner: false, IsWritable: false}, // 12: integratorDstAta (optional, use programID when nil)
+			{Pubkey: originalOrder.SrcMint(), IsSigner: false, IsWritable: false},                                           // 4: srcMint
+			{Pubkey: originalOrder.DstMint(), IsSigner: false, IsWritable: false},                                           // 5: dstMint
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true},  // 6: escrow
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true},  // 7: escrowSrcAta
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true},  // 8: makerSrcAta (optional)
+			{Pubkey: domains.TOKEN_PROGRAM_ID, IsSigner: false, IsWritable: false},                                          // 9: srcTokenProgram
+			{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false},                                         // 10: systemProgram
+			{Pubkey: programID, IsSigner: false, IsWritable: false},                                                         // 11: protocolDstAta (optional, use programID when nil)
+			{Pubkey: programID, IsSigner: false, IsWritable: false},                                                         // 12: integratorDstAta (optional, use programID when nil)
 		},
 		append(append(idl.CancelOrderByResolverDiscriminator, borshData...), rewardLimitBytes...),
 	)

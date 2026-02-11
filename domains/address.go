@@ -95,12 +95,16 @@ func AddressFromBuffer(buf []byte) *Address {
 func AddressFromBigInt(val *big.Int) *Address {
 	// Convert big.Int to hex string, pad to 64 hex chars (32 bytes), then convert to bytes
 	hexStr := fmt.Sprintf("%064x", val)
-	
+
 	// Convert hex string to bytes (big-endian, 32 bytes)
 	buf := make([]byte, 32)
 	for i := 0; i < 32; i++ {
 		var b byte
-		fmt.Sscanf(hexStr[i*2:(i+1)*2], "%02x", &b)
+		_, err := fmt.Sscanf(hexStr[i*2:(i+1)*2], "%02x", &b)
+		if err != nil {
+			// This should never happen for valid hex string, but handle it gracefully
+			panic(fmt.Sprintf("invalid hex string in AddressFromBigInt: %v", err))
+		}
 		buf[i] = b
 	}
 

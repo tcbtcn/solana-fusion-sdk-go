@@ -80,7 +80,7 @@ func TestQuoterApi_GetQuote_Success(t *testing.T) {
 			RecommendedPreset: PresetTypeFast,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(quote)
+		_ = json.NewEncoder(w).Encode(quote)
 	}))
 	defer server.Close()
 
@@ -122,7 +122,7 @@ func TestQuoterApi_GetQuote_WithSlippage(t *testing.T) {
 			DstAmount: "1420000000",
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(quote)
+		_ = json.NewEncoder(w).Encode(quote)
 	}))
 	defer server.Close()
 

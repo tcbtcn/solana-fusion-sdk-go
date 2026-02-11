@@ -26,9 +26,9 @@ func TestCancellableOrderFromJSON(t *testing.T) {
 			SrcAssetIsNative:            false,
 			DstAssetIsNative:            false,
 			Fee: orders.FeeDTO{
-				ProtocolFee:           0,
-				IntegratorFee:         0,
-				SurplusPercentage:     0,
+				ProtocolFee:            0,
+				IntegratorFee:          0,
+				SurplusPercentage:      0,
 				MaxCancellationPremium: "0",
 			},
 			DutchAuctionData: orders.DutchAuctionDataDTO{

@@ -11,7 +11,7 @@ func TestPresetFromJSON_Success(t *testing.T) {
 	json := quoter.PresetDTO{
 		StartAuctionIn:     10,
 		AuctionDuration:    180,
-		InitialRateBump:   50000,
+		InitialRateBump:    50000,
 		AuctionStartAmount: "1500000000",
 		AuctionEndAmount:   "1420000000",
 		CostInDstToken:     "100",
@@ -59,7 +59,7 @@ func TestPresetFromJSON_EmptyPoints(t *testing.T) {
 	json := quoter.PresetDTO{
 		StartAuctionIn:     10,
 		AuctionDuration:    180,
-		InitialRateBump:   0,
+		InitialRateBump:    0,
 		AuctionStartAmount: "1500000000",
 		AuctionEndAmount:   "1420000000",
 		CostInDstToken:     "0",
@@ -80,7 +80,7 @@ func TestPresetFromJSON_InvalidAmounts(t *testing.T) {
 	json := quoter.PresetDTO{
 		StartAuctionIn:     10,
 		AuctionDuration:    180,
-		InitialRateBump:   0,
+		InitialRateBump:    0,
 		AuctionStartAmount: "invalid",
 		AuctionEndAmount:   "invalid",
 		CostInDstToken:     "invalid",

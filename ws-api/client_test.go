@@ -8,12 +8,12 @@ import (
 )
 
 type mockProvider struct {
-	mu            sync.RWMutex
-	connected     bool
-	sentMessages  []interface{}
-	callbacks     map[WebSocketEvent][]interface{}
-	msgCallbacks  []OnMessageCb
-	openCallbacks []OnOpenCb
+	mu             sync.RWMutex
+	connected      bool
+	sentMessages   []interface{}
+	callbacks      map[WebSocketEvent][]interface{}
+	msgCallbacks   []OnMessageCb
+	openCallbacks  []OnOpenCb
 	closeCallbacks []OnCloseCb
 	errorCallbacks []OnErrorCb
 }
