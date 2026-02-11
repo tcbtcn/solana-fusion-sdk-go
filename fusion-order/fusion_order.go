@@ -484,3 +484,207 @@ func (f *FusionOrder) GetOrderHashWithError() ([]byte, error) {
 func (f *FusionOrder) GetOrderHashBase58() string {
 	return base58.Encode(f.GetOrderHash())
 }
+
+// internalCalculator is an internal implementation of Calculator that avoids circular dependencies
+type internalCalculator struct {
+	auctionDetails *AuctionDetails
+	fees           *FeeConfig
+}
+
+func (c *internalCalculator) GetRequiredTakingAmount(takingAmount *big.Int, time uint32) *big.Int {
+	rateBump := c.calcRateBump(time)
+	return c.calcAuctionTakingAmount(takingAmount, rateBump)
+}
+
+func (c *internalCalculator) GetUserReceiveAmount(takingAmount *big.Int, estimatedTakingAmount *big.Int, time uint32) *big.Int {
+	auctionAmount := c.GetRequiredTakingAmount(takingAmount, time)
+	if c.fees == nil || c.fees.IsZero() {
+		return auctionAmount
+	}
+	return c.getUserReceiveAmount(auctionAmount, estimatedTakingAmount)
+}
+
+func (c *internalCalculator) GetIntegratorFee(takingAmount *big.Int, time uint32) *big.Int {
+	if c.fees == nil || c.fees.IsZero() || c.fees.IntegratorFee.IsZero() {
+		return big.NewInt(0)
+	}
+	auctionAmount := c.GetRequiredTakingAmount(takingAmount, time)
+	// BPS is 0-10000 where 10000 = 100%
+	// Fee = (amount * bps) / 10000
+	return new(big.Int).Div(
+		new(big.Int).Mul(auctionAmount, c.fees.IntegratorFee.Value()),
+		big.NewInt(10000),
+	)
+}
+
+func (c *internalCalculator) GetProtocolFee(takingAmount *big.Int, estimatedTakingAmount *big.Int, time uint32) *big.Int {
+	if c.fees == nil || c.fees.IsZero() {
+		return big.NewInt(0)
+	}
+	auctionAmount := c.GetRequiredTakingAmount(takingAmount, time)
+	return c.getProtocolFee(auctionAmount, estimatedTakingAmount)
+}
+
+func (c *internalCalculator) calcRateBump(blockTime uint32) uint16 {
+	auctionFinishTime := c.auctionDetails.StartTime + c.auctionDetails.Duration
+
+	if blockTime <= c.auctionDetails.StartTime {
+		return c.auctionDetails.InitialRateBump
+	} else if blockTime >= auctionFinishTime {
+		return 0
+	}
+
+	currentRateBump := big.NewInt(int64(c.auctionDetails.InitialRateBump))
+	currentPointTime := big.NewInt(int64(c.auctionDetails.StartTime))
+	blockTimeBN := big.NewInt(int64(blockTime))
+	finishTimeBN := big.NewInt(int64(auctionFinishTime))
+
+	for _, point := range c.auctionDetails.Points {
+		nextPointTime := new(big.Int).Add(big.NewInt(int64(point.Delay)), currentPointTime)
+
+		if blockTimeBN.Cmp(nextPointTime) <= 0 {
+			// Linear interpolation
+			timeDiff := new(big.Int).Sub(blockTimeBN, currentPointTime)
+			nextRateBump := big.NewInt(int64(point.Coefficient))
+
+			// ((blockTime - currentPointTime) * nextRateBump + (nextPointTime - blockTime) * currentRateBump) / (nextPointTime - currentPointTime)
+			term1 := new(big.Int).Mul(timeDiff, nextRateBump)
+			term2 := new(big.Int).Sub(nextPointTime, blockTimeBN)
+			term2 = term2.Mul(term2, currentRateBump)
+			numerator := new(big.Int).Add(term1, term2)
+			denominator := new(big.Int).Sub(nextPointTime, currentPointTime)
+
+			result := new(big.Int).Div(numerator, denominator)
+			return uint16(result.Uint64())
+		}
+
+		currentPointTime = nextPointTime
+		currentRateBump = big.NewInt(int64(point.Coefficient))
+	}
+
+	// After all points, interpolate to finish time
+	timeDiff := new(big.Int).Sub(finishTimeBN, blockTimeBN)
+	numerator := new(big.Int).Mul(timeDiff, currentRateBump)
+	denominator := new(big.Int).Sub(finishTimeBN, currentPointTime)
+
+	result := new(big.Int).Div(numerator, denominator)
+	return uint16(result.Uint64())
+}
+
+func (c *internalCalculator) calcAuctionTakingAmount(takingAmount *big.Int, rate uint16) *big.Int {
+	// (takingAmount * (rate + RATE_BUMP_DENOMINATOR)) / RATE_BUMP_DENOMINATOR
+	rateBumpDenominator := big.NewInt(100_000)
+	rateBig := big.NewInt(int64(rate))
+	denominator := new(big.Int).Add(rateBig, rateBumpDenominator)
+
+	// Use ceiling rounding
+	numerator := new(big.Int).Mul(takingAmount, denominator)
+	remainder := new(big.Int).Mod(numerator, rateBumpDenominator)
+	result := new(big.Int).Div(numerator, rateBumpDenominator)
+	if remainder.Sign() > 0 {
+		result = result.Add(result, big.NewInt(1))
+	}
+	return result
+}
+
+func (c *internalCalculator) getUserReceiveAmount(auctionTakingAmount *big.Int, estimatedTakingAmount *big.Int) *big.Int {
+	amounts := c.getAmounts(auctionTakingAmount, estimatedTakingAmount)
+	return amounts.UserReceiveAmount
+}
+
+func (c *internalCalculator) getProtocolFee(auctionTakingAmount *big.Int, estimatedTakingAmount *big.Int) *big.Int {
+	amounts := c.getAmounts(auctionTakingAmount, estimatedTakingAmount)
+	return amounts.ProtocolFeeAmount
+}
+
+type amountsResult struct {
+	ProtocolFeeAmount *big.Int
+	UserReceiveAmount *big.Int
+}
+
+func (c *internalCalculator) getAmounts(auctionTakingAmount *big.Int, estimatedTakingAmount *big.Int) amountsResult {
+	var protocolFee *big.Int
+	if c.fees == nil || c.fees.IsZero() || c.fees.ProtocolFee.IsZero() {
+		protocolFee = big.NewInt(0)
+	} else {
+		// BPS is 0-10000 where 10000 = 100%
+		// Fee = (amount * bps) / 10000
+		protocolFee = new(big.Int).Div(
+			new(big.Int).Mul(auctionTakingAmount, c.fees.ProtocolFee.Value()),
+			big.NewInt(10000),
+		)
+	}
+
+	integratorFee := c.GetIntegratorFee(auctionTakingAmount, 0) // time doesn't matter for integrator fee calculation
+
+	userAmountWithoutFee := new(big.Int).Sub(auctionTakingAmount, protocolFee)
+	userAmountWithoutFee = userAmountWithoutFee.Sub(userAmountWithoutFee, integratorFee)
+
+	if userAmountWithoutFee.Cmp(estimatedTakingAmount) > 0 {
+		surplus := new(big.Int).Sub(userAmountWithoutFee, estimatedTakingAmount)
+		if c.fees != nil && !c.fees.SurplusShare.IsZero() {
+			// Surplus share is stored as BPS (0-10000 where 10000 = 100%)
+			// Surplus fee = (surplus * surplusShare) / 10000
+			surplusFee := new(big.Int).Div(
+				new(big.Int).Mul(surplus, c.fees.SurplusShare.Value()),
+				big.NewInt(10000),
+			)
+			protocolFee = protocolFee.Add(protocolFee, surplusFee)
+		}
+	}
+
+	userReceiveAmount := new(big.Int).Sub(auctionTakingAmount, protocolFee)
+	userReceiveAmount = userReceiveAmount.Sub(userReceiveAmount, integratorFee)
+
+	return amountsResult{
+		ProtocolFeeAmount: protocolFee,
+		UserReceiveAmount: userReceiveAmount,
+	}
+}
+
+// getInternalCalculator creates an internal calculator for this order.
+func (f *FusionOrder) getInternalCalculator() Calculator {
+	return &internalCalculator{
+		auctionDetails: f.orderConfig.DutchAuctionData,
+		fees:           f.orderConfig.Fees,
+	}
+}
+
+// CalcTakingAmount calculates required taking amount to fill order for the given makingAmount at block time.
+// This matches the TypeScript SDK's calcTakingAmount() method.
+func (f *FusionOrder) CalcTakingAmount(makingAmount *big.Int, time uint32) (*big.Int, error) {
+	calculator := f.getInternalCalculator()
+	return f.CalcTakingAmountWithCalculator(calculator, makingAmount, time), nil
+}
+
+// GetUserReceiveAmount calculates how much user will receive in dst token.
+// This matches the TypeScript SDK's getUserReceiveAmount() method.
+func (f *FusionOrder) GetUserReceiveAmount(makingAmount *big.Int, time uint32) (*big.Int, error) {
+	calculator := f.getInternalCalculator()
+	return f.GetUserReceiveAmountWithCalculator(calculator, makingAmount, time), nil
+}
+
+// GetIntegratorFee calculates fee in dstToken which integrator gets to integrator ata account.
+// If makingAmount is nil, uses the order's srcAmount as default (matching TypeScript behavior).
+// This matches the TypeScript SDK's getIntegratorFee() method.
+func (f *FusionOrder) GetIntegratorFee(time uint32, makingAmount *big.Int) (*big.Int, error) {
+	calculator := f.getInternalCalculator()
+	return f.GetIntegratorFeeWithCalculator(calculator, time, makingAmount), nil
+}
+
+// GetProtocolFee calculates fee in dstToken which protocol gets to protocol ata account.
+// If makingAmount is nil, uses the order's srcAmount as default (matching TypeScript behavior).
+// This matches the TypeScript SDK's getProtocolFee() method.
+func (f *FusionOrder) GetProtocolFee(time uint32, makingAmount *big.Int) (*big.Int, error) {
+	calculator := f.getInternalCalculator()
+	return f.GetProtocolFeeWithCalculator(calculator, time, makingAmount), nil
+}
+
+// GetCalculator returns a Calculator interface for this order.
+// Note: Due to Go's circular dependency constraints, this returns the Calculator interface
+// rather than the concrete AmountCalculator type. The convenience methods (CalcTakingAmount,
+// GetUserReceiveAmount, GetIntegratorFee, GetProtocolFee) use this internally.
+// This matches the TypeScript SDK's getCalculator() method conceptually.
+func (f *FusionOrder) GetCalculator() Calculator {
+	return f.getInternalCalculator()
+}
