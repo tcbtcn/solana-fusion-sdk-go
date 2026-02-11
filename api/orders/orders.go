@@ -3,6 +3,7 @@ package orders
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/dawitel/solana-fusion-sdk-go/api"
 	"github.com/dawitel/solana-fusion-sdk-go/api/http"
@@ -16,7 +17,9 @@ type OrdersApi struct {
 
 // NewOrdersApi creates a new OrdersApi
 func NewOrdersApi(config api.ApiConfig, client http.Client) *OrdersApi {
-	baseURL := fmt.Sprintf("%s/orders/%s/501", config.BaseURL, config.Version)
+	// Remove trailing slash from BaseURL to avoid double slashes
+	baseURL := strings.TrimSuffix(config.BaseURL, "/")
+	baseURL = fmt.Sprintf("%s/orders/%s/501", baseURL, config.Version)
 
 	return &OrdersApi{
 		baseURL: baseURL,
@@ -26,10 +29,10 @@ func NewOrdersApi(config api.ApiConfig, client http.Client) *OrdersApi {
 
 // GetActiveOrders gets active orders with pagination
 func (o *OrdersApi) GetActiveOrders(ctx context.Context, page, limit int) (*api.Pagination[OrderInfoDTO], error) {
-	path := fmt.Sprintf("/order/active?limit=%d&page=%d", limit, page)
+	url := fmt.Sprintf("%s/order/active?limit=%d&page=%d", o.baseURL, limit, page)
 
 	var result api.Pagination[OrderInfoDTO]
-	err := o.client.Get(ctx, o.baseURL+path, &result)
+	err := o.client.Get(ctx, url, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -39,10 +42,12 @@ func (o *OrdersApi) GetActiveOrders(ctx context.Context, page, limit int) (*api.
 
 // GetOrderStatus gets the status of an order
 func (o *OrdersApi) GetOrderStatus(ctx context.Context, orderHash string) (*OrderStatusDTO, error) {
-	path := fmt.Sprintf("/order/status/%s", orderHash)
+	// Sanitize orderHash to prevent injection
+	orderHash = strings.TrimSpace(orderHash)
+	url := fmt.Sprintf("%s/order/status/%s", o.baseURL, orderHash)
 
 	var result OrderStatusDTO
-	err := o.client.Get(ctx, o.baseURL+path, &result)
+	err := o.client.Get(ctx, url, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -52,10 +57,10 @@ func (o *OrdersApi) GetOrderStatus(ctx context.Context, orderHash string) (*Orde
 
 // GetOrdersCancellableByResolver gets orders cancellable by resolver with pagination
 func (o *OrdersApi) GetOrdersCancellableByResolver(ctx context.Context, page, limit int) (*api.Pagination[OrderCancellableByResolverInfoDTO], error) {
-	path := fmt.Sprintf("/order/cancelable-by-resolvers?limit=%d&page=%d", limit, page)
+	url := fmt.Sprintf("%s/order/cancelable-by-resolvers?limit=%d&page=%d", o.baseURL, limit, page)
 
 	var result api.Pagination[OrderCancellableByResolverInfoDTO]
-	err := o.client.Get(ctx, o.baseURL+path, &result)
+	err := o.client.Get(ctx, url, &result)
 	if err != nil {
 		return nil, err
 	}

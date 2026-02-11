@@ -61,7 +61,7 @@ func (c *HTTPClient) Get(ctx context.Context, path string, result interface{}) e
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body))
+		return fmt.Errorf("HTTP %d for %s: %s", resp.StatusCode, url, string(body))
 	}
 
 	if result != nil {
@@ -104,7 +104,7 @@ func (c *HTTPClient) Post(ctx context.Context, path string, data interface{}, re
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		respBody, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(respBody))
+		return fmt.Errorf("HTTP %d for %s: %s", resp.StatusCode, url, string(respBody))
 	}
 
 	if result != nil {

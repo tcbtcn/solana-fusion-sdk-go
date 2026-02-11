@@ -70,9 +70,15 @@ func QuoteFromJSON(
 }
 
 // ToOrder converts a Quote to a FusionOrder
+// If presetType is empty, uses RecommendedPreset (matching TypeScript default behavior)
+// If receiver is nil, uses Signer (matching TypeScript default behavior)
 func (q *Quote) ToOrder(presetType quoter.PresetType, receiver *domains.Address) (*fusionorder.FusionOrder, error) {
 	if receiver == nil {
 		receiver = q.Signer
+	}
+
+	if presetType == "" {
+		presetType = q.RecommendedPreset
 	}
 
 	var preset *Preset
@@ -84,7 +90,21 @@ func (q *Quote) ToOrder(presetType quoter.PresetType, receiver *domains.Address)
 	case quoter.PresetTypeSlow:
 		preset = q.Presets.Slow
 	default:
-		preset = q.Presets.Fast
+		// Fallback to RecommendedPreset if unknown preset type
+		switch q.RecommendedPreset {
+		case quoter.PresetTypeFast:
+			preset = q.Presets.Fast
+		case quoter.PresetTypeMedium:
+			preset = q.Presets.Medium
+		case quoter.PresetTypeSlow:
+			preset = q.Presets.Slow
+		default:
+			preset = q.Presets.Fast
+		}
+	}
+
+	if preset == nil {
+		return nil, errors.New("preset is nil: invalid preset type or missing preset data")
 	}
 
 	// Create auction details

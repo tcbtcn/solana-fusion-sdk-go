@@ -25,7 +25,7 @@ func FromCreateInstruction(ix *types.TransactionInstruction) (*FusionOrder, erro
 	// Decode order config from Borsh data (skip 8-byte discriminator)
 	orderConfig, err := deserializeOrderConfig(ix.Data[8:])
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode order config: %w", err)
+		return nil, fmt.Errorf("create instruction: failed to decode order config: %w", err)
 	}
 
 	// Extract accounts (based on create instruction account layout)
@@ -77,7 +77,7 @@ func FromFillInstruction(ix *types.TransactionInstruction) (*FusionOrder, error)
 	orderConfigData := ix.Data[8 : len(ix.Data)-8]
 	orderConfig, err := deserializeOrderConfig(orderConfigData)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode order config: %w", err)
+		return nil, fmt.Errorf("fill instruction: failed to decode order config: %w", err)
 	}
 
 	// Extract accounts (based on fill instruction account layout)
@@ -91,7 +91,7 @@ func FromFillInstruction(ix *types.TransactionInstruction) (*FusionOrder, error)
 	protocolDstAta := ix.Accounts[15].Pubkey   // index 15
 	integratorDstAta := ix.Accounts[16].Pubkey // index 16
 
-	return fromContractOrder(orderConfig, struct {
+	order, err := fromContractOrder(orderConfig, struct {
 		SrcMint          *domains.Address
 		DstMint          *domains.Address
 		Receiver         *domains.Address
@@ -106,6 +106,10 @@ func FromFillInstruction(ix *types.TransactionInstruction) (*FusionOrder, error)
 		IntegratorDstAta: integratorDstAta,
 		ProgramID:        ix.ProgramID,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("fill instruction: %w", err)
+	}
+	return order, nil
 }
 
 // FromResolverCancelInstruction decodes a FusionOrder from a cancelByResolver instruction
@@ -129,7 +133,7 @@ func FromResolverCancelInstruction(ix *types.TransactionInstruction) (*FusionOrd
 	orderConfigData := ix.Data[8 : len(ix.Data)-8]
 	orderConfig, err := deserializeOrderConfig(orderConfigData)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode order config: %w", err)
+		return nil, fmt.Errorf("cancelByResolver instruction: failed to decode order config: %w", err)
 	}
 
 	// Extract accounts (based on cancelByResolver instruction account layout)
@@ -143,7 +147,7 @@ func FromResolverCancelInstruction(ix *types.TransactionInstruction) (*FusionOrd
 	protocolDstAta := ix.Accounts[11].Pubkey   // index 11
 	integratorDstAta := ix.Accounts[12].Pubkey // index 12
 
-	return fromContractOrder(orderConfig, struct {
+	order, err := fromContractOrder(orderConfig, struct {
 		SrcMint          *domains.Address
 		DstMint          *domains.Address
 		Receiver         *domains.Address
@@ -158,6 +162,10 @@ func FromResolverCancelInstruction(ix *types.TransactionInstruction) (*FusionOrd
 		IntegratorDstAta: integratorDstAta,
 		ProgramID:        ix.ProgramID,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("cancelByResolver instruction: %w", err)
+	}
+	return order, nil
 }
 
 // FromContractOrder creates a FusionOrder from a ContractOrderConfig and account addresses
@@ -273,56 +281,56 @@ func fromContractOrder(
 // deserializeOrderConfig deserializes a ContractOrderConfig from Borsh-encoded data
 func deserializeOrderConfig(data []byte) (*ContractOrderConfig, error) {
 	if len(data) < 4 {
-		return nil, errors.New("data too short for order config")
+		return nil, fmt.Errorf("data too short for order config: expected at least 4 bytes, got %d", len(data))
 	}
 
 	offset := 0
 
 	// id: u32
 	if offset+4 > len(data) {
-		return nil, errors.New("insufficient data for id")
+		return nil, fmt.Errorf("insufficient data for id: expected %d bytes, got %d", offset+4, len(data))
 	}
 	id := binary.LittleEndian.Uint32(data[offset:])
 	offset += 4
 
 	// srcAmount: u64
 	if offset+8 > len(data) {
-		return nil, errors.New("insufficient data for srcAmount")
+		return nil, fmt.Errorf("insufficient data for srcAmount: expected %d bytes, got %d", offset+8, len(data))
 	}
 	srcAmount := new(big.Int).SetUint64(binary.LittleEndian.Uint64(data[offset:]))
 	offset += 8
 
 	// minDstAmount: u64
 	if offset+8 > len(data) {
-		return nil, errors.New("insufficient data for minDstAmount")
+		return nil, fmt.Errorf("insufficient data for minDstAmount: expected %d bytes, got %d", offset+8, len(data))
 	}
 	minDstAmount := new(big.Int).SetUint64(binary.LittleEndian.Uint64(data[offset:]))
 	offset += 8
 
 	// estimatedDstAmount: u64
 	if offset+8 > len(data) {
-		return nil, errors.New("insufficient data for estimatedDstAmount")
+		return nil, fmt.Errorf("insufficient data for estimatedDstAmount: expected %d bytes, got %d", offset+8, len(data))
 	}
 	estimatedDstAmount := new(big.Int).SetUint64(binary.LittleEndian.Uint64(data[offset:]))
 	offset += 8
 
 	// expirationTime: u32
 	if offset+4 > len(data) {
-		return nil, errors.New("insufficient data for expirationTime")
+		return nil, fmt.Errorf("insufficient data for expirationTime: expected %d bytes, got %d", offset+4, len(data))
 	}
 	expirationTime := binary.LittleEndian.Uint32(data[offset:])
 	offset += 4
 
 	// srcAssetIsNative: bool
 	if offset+1 > len(data) {
-		return nil, errors.New("insufficient data for srcAssetIsNative")
+		return nil, fmt.Errorf("insufficient data for srcAssetIsNative: expected %d bytes, got %d", offset+1, len(data))
 	}
 	srcAssetIsNative := data[offset] != 0
 	offset += 1
 
 	// dstAssetIsNative: bool
 	if offset+1 > len(data) {
-		return nil, errors.New("insufficient data for dstAssetIsNative")
+		return nil, fmt.Errorf("insufficient data for dstAssetIsNative: expected %d bytes, got %d", offset+1, len(data))
 	}
 	dstAssetIsNative := data[offset] != 0
 	offset += 1
@@ -330,28 +338,28 @@ func deserializeOrderConfig(data []byte) (*ContractOrderConfig, error) {
 	// fee: struct
 	// protocolFee: u16
 	if offset+2 > len(data) {
-		return nil, errors.New("insufficient data for protocolFee")
+		return nil, fmt.Errorf("insufficient data for protocolFee: expected %d bytes, got %d", offset+2, len(data))
 	}
 	protocolFee := binary.LittleEndian.Uint16(data[offset:])
 	offset += 2
 
 	// integratorFee: u16
 	if offset+2 > len(data) {
-		return nil, errors.New("insufficient data for integratorFee")
+		return nil, fmt.Errorf("insufficient data for integratorFee: expected %d bytes, got %d", offset+2, len(data))
 	}
 	integratorFee := binary.LittleEndian.Uint16(data[offset:])
 	offset += 2
 
 	// surplusPercentage: u8
 	if offset+1 > len(data) {
-		return nil, errors.New("insufficient data for surplusPercentage")
+		return nil, fmt.Errorf("insufficient data for surplusPercentage: expected %d bytes, got %d", offset+1, len(data))
 	}
 	surplusPercentage := data[offset]
 	offset += 1
 
 	// maxCancellationPremium: u64
 	if offset+8 > len(data) {
-		return nil, errors.New("insufficient data for maxCancellationPremium")
+		return nil, fmt.Errorf("insufficient data for maxCancellationPremium: expected %d bytes, got %d", offset+8, len(data))
 	}
 	maxCancellationPremium := new(big.Int).SetUint64(binary.LittleEndian.Uint64(data[offset:]))
 	offset += 8
@@ -359,28 +367,28 @@ func deserializeOrderConfig(data []byte) (*ContractOrderConfig, error) {
 	// dutchAuctionData: struct
 	// startTime: u32
 	if offset+4 > len(data) {
-		return nil, errors.New("insufficient data for startTime")
+		return nil, fmt.Errorf("insufficient data for startTime: expected %d bytes, got %d", offset+4, len(data))
 	}
 	startTime := binary.LittleEndian.Uint32(data[offset:])
 	offset += 4
 
 	// duration: u32
 	if offset+4 > len(data) {
-		return nil, errors.New("insufficient data for duration")
+		return nil, fmt.Errorf("insufficient data for duration: expected %d bytes, got %d", offset+4, len(data))
 	}
 	duration := binary.LittleEndian.Uint32(data[offset:])
 	offset += 4
 
 	// initialRateBump: u16
 	if offset+2 > len(data) {
-		return nil, errors.New("insufficient data for initialRateBump")
+		return nil, fmt.Errorf("insufficient data for initialRateBump: expected %d bytes, got %d", offset+2, len(data))
 	}
 	initialRateBump := binary.LittleEndian.Uint16(data[offset:])
 	offset += 2
 
 	// pointsAndTimeDeltas: array (u32 length prefix)
 	if offset+4 > len(data) {
-		return nil, errors.New("insufficient data for points count")
+		return nil, fmt.Errorf("insufficient data for points count: expected %d bytes, got %d", offset+4, len(data))
 	}
 	pointsCount := binary.LittleEndian.Uint32(data[offset:])
 	offset += 4
@@ -389,14 +397,14 @@ func deserializeOrderConfig(data []byte) (*ContractOrderConfig, error) {
 	for i := uint32(0); i < pointsCount; i++ {
 		// rateBump: u16
 		if offset+2 > len(data) {
-			return nil, fmt.Errorf("insufficient data for point %d rateBump", i)
+			return nil, fmt.Errorf("insufficient data for point %d rateBump: expected %d bytes, got %d", i, offset+2, len(data))
 		}
 		rateBump := binary.LittleEndian.Uint16(data[offset:])
 		offset += 2
 
 		// timeDelta: u16
 		if offset+2 > len(data) {
-			return nil, fmt.Errorf("insufficient data for point %d timeDelta", i)
+			return nil, fmt.Errorf("insufficient data for point %d timeDelta: expected %d bytes, got %d", i, offset+2, len(data))
 		}
 		timeDelta := binary.LittleEndian.Uint16(data[offset:])
 		offset += 2
@@ -409,7 +417,7 @@ func deserializeOrderConfig(data []byte) (*ContractOrderConfig, error) {
 
 	// cancellationAuctionDuration: u32
 	if offset+4 > len(data) {
-		return nil, errors.New("insufficient data for cancellationAuctionDuration")
+		return nil, fmt.Errorf("insufficient data for cancellationAuctionDuration: expected %d bytes, got %d", offset+4, len(data))
 	}
 	cancellationAuctionDuration := binary.LittleEndian.Uint32(data[offset:])
 

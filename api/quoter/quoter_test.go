@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/dawitel/solana-fusion-sdk-go/api"
@@ -171,4 +172,59 @@ func TestQuoterApi_GetQuote_Error(t *testing.T) {
 
 func stringPtr(s string) *string {
 	return &s
+}
+
+// TestQuoterApi_URLConstruction_NoDoubleSlash tests URL construction with various baseURL formats
+func TestQuoterApi_URLConstruction_NoDoubleSlash(t *testing.T) {
+	testCases := []struct {
+		name    string
+		baseURL string
+		wantURL string
+	}{
+		{
+			name:    "baseURL without trailing slash",
+			baseURL: "https://api.example.com",
+			wantURL: "https://api.example.com/quoter/v1.0/501/quote?",
+		},
+		{
+			name:    "baseURL with trailing slash",
+			baseURL: "https://api.example.com/",
+			wantURL: "https://api.example.com/quoter/v1.0/501/quote?",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var actualURL string
+			mockClient := &mockHTTPClient{
+				getFunc: func(ctx context.Context, url string, result interface{}) error {
+					actualURL = url
+					return nil
+				},
+			}
+
+			config := api.ApiConfig{
+				BaseURL: tc.baseURL,
+				Version: "v1.0",
+			}
+			quoterApi := NewQuoterApi(config, mockClient)
+
+			srcToken := domains.MustAddressFromString("So11111111111111111111111111111111111111112")
+			dstToken := domains.MustAddressFromString("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+			amount := big.NewInt(1000000000000000000)
+			signer := domains.MustAddressFromString("11111111111111111111111111111111")
+
+			_, _ = quoterApi.GetQuote(context.Background(), srcToken, dstToken, amount, signer, true, nil)
+
+			// Check URL starts with expected base (query params may vary)
+			if !strings.HasPrefix(actualURL, tc.wantURL) {
+				t.Errorf("Expected URL to start with %s, got %s", tc.wantURL, actualURL)
+			}
+			// Verify no double slashes (excluding protocol)
+			urlWithoutProtocol := strings.TrimPrefix(strings.TrimPrefix(actualURL, "http://"), "https://")
+			if strings.Contains(urlWithoutProtocol, "//") {
+				t.Errorf("URL contains double slash (excluding protocol): %s", actualURL)
+			}
+		})
+	}
 }

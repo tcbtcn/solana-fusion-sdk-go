@@ -368,3 +368,131 @@ func TestSdk_GetCancellableOrders_Success(t *testing.T) {
 		t.Errorf("Expected 1 cancellable order, got %d", len(cancellableOrders.Items))
 	}
 }
+
+// Edge case tests
+
+func TestSdk_GetQuote_NilAddresses(t *testing.T) {
+	config := api.ApiConfig{
+		BaseURL: "https://api.example.com",
+		Version: "v1.0",
+		AuthKey: "test-key",
+	}
+	sdk := NewSdk(&mockHTTPClient{}, config)
+
+	srcToken := domains.MustAddressFromString("So11111111111111111111111111111111111111112")
+	dstToken := domains.MustAddressFromString("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+	amount := big.NewInt(1000000000000000000)
+	signer := domains.MustAddressFromString("11111111111111111111111111111111")
+
+	// Test nil srcToken
+	_, err := sdk.GetQuote(context.Background(), nil, dstToken, amount, signer, nil)
+	if err == nil {
+		t.Error("Expected error for nil srcToken")
+	}
+
+	// Test nil dstToken
+	_, err = sdk.GetQuote(context.Background(), srcToken, nil, amount, signer, nil)
+	if err == nil {
+		t.Error("Expected error for nil dstToken")
+	}
+
+	// Test nil signer
+	_, err = sdk.GetQuote(context.Background(), srcToken, dstToken, amount, nil, nil)
+	if err == nil {
+		t.Error("Expected error for nil signer")
+	}
+}
+
+func TestSdk_GetQuote_InvalidAmount(t *testing.T) {
+	config := api.ApiConfig{
+		BaseURL: "https://api.example.com",
+		Version: "v1.0",
+		AuthKey: "test-key",
+	}
+	sdk := NewSdk(&mockHTTPClient{}, config)
+
+	srcToken := domains.MustAddressFromString("So11111111111111111111111111111111111111112")
+	dstToken := domains.MustAddressFromString("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
+	signer := domains.MustAddressFromString("11111111111111111111111111111111")
+
+	// Test nil amount
+	_, err := sdk.GetQuote(context.Background(), srcToken, dstToken, nil, signer, nil)
+	if err == nil {
+		t.Error("Expected error for nil amount")
+	}
+
+	// Test zero amount
+	_, err = sdk.GetQuote(context.Background(), srcToken, dstToken, big.NewInt(0), signer, nil)
+	if err == nil {
+		t.Error("Expected error for zero amount")
+	}
+
+	// Test negative amount
+	_, err = sdk.GetQuote(context.Background(), srcToken, dstToken, big.NewInt(-1), signer, nil)
+	if err == nil {
+		t.Error("Expected error for negative amount")
+	}
+}
+
+func TestSdk_GetOrderStatus_EmptyHash(t *testing.T) {
+	config := api.ApiConfig{
+		BaseURL: "https://api.example.com",
+		Version: "v1.0",
+		AuthKey: "test-key",
+	}
+	sdk := NewSdk(&mockHTTPClient{}, config)
+
+	// Test empty orderHash
+	_, err := sdk.GetOrderStatus(context.Background(), "")
+	if err == nil {
+		t.Error("Expected error for empty orderHash")
+	}
+
+	// Test whitespace-only orderHash
+	_, err = sdk.GetOrderStatus(context.Background(), "   ")
+	if err == nil {
+		t.Error("Expected error for whitespace-only orderHash")
+	}
+}
+
+func TestSdk_GetActiveOrders_InvalidPagination(t *testing.T) {
+	config := api.ApiConfig{
+		BaseURL: "https://api.example.com",
+		Version: "v1.0",
+		AuthKey: "test-key",
+	}
+	sdk := NewSdk(&mockHTTPClient{}, config)
+
+	// Test invalid page
+	_, err := sdk.GetActiveOrders(context.Background(), 0, 10)
+	if err == nil {
+		t.Error("Expected error for page < 1")
+	}
+
+	// Test invalid limit
+	_, err = sdk.GetActiveOrders(context.Background(), 1, 0)
+	if err == nil {
+		t.Error("Expected error for limit < 1")
+	}
+}
+
+func TestSdk_GetOrdersCancellableByResolver_InvalidPagination(t *testing.T) {
+	config := api.ApiConfig{
+		BaseURL: "https://api.example.com",
+		Version: "v1.0",
+		AuthKey: "test-key",
+	}
+	sdk := NewSdk(&mockHTTPClient{}, config)
+
+	// Test invalid page
+	_, err := sdk.GetOrdersCancellableByResolver(context.Background(), 0, 10)
+	if err == nil {
+		t.Error("Expected error for page < 1")
+	}
+
+	// Test invalid limit
+	_, err = sdk.GetOrdersCancellableByResolver(context.Background(), 1, 0)
+	if err == nil {
+		t.Error("Expected error for limit < 1")
+	}
+}

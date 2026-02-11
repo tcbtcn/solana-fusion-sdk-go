@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/dawitel/solana-fusion-sdk-go/api"
@@ -52,6 +53,9 @@ func TestNewOrdersApi(t *testing.T) {
 func TestOrdersApi_GetOrderStatus_Success(t *testing.T) {
 	orderHash := "test-order-hash"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// URL is constructed as: baseURL/order/status/{hash}
+		// where baseURL = server.URL/orders/v1.0/501
+		// So full path = /orders/v1.0/501/order/status/{hash}
 		expectedPath := "/orders/v1.0/501/order/status/" + orderHash
 		if r.URL.Path != expectedPath {
 			t.Errorf("Expected path %s, got %s", expectedPath, r.URL.Path)
@@ -305,5 +309,54 @@ func TestOrdersApi_GetOrdersCancellableByResolver_Error(t *testing.T) {
 	_, err := ordersApi.GetOrdersCancellableByResolver(context.Background(), 1, 10)
 	if err == nil {
 		t.Fatal("Expected error")
+	}
+}
+
+// TestOrdersApi_URLConstruction_NoDoubleSlash tests URL construction with various baseURL formats
+func TestOrdersApi_URLConstruction_NoDoubleSlash(t *testing.T) {
+	testCases := []struct {
+		name    string
+		baseURL string
+		wantURL string
+	}{
+		{
+			name:    "baseURL without trailing slash",
+			baseURL: "https://api.example.com",
+			wantURL: "https://api.example.com/orders/v1.0/501/order/active?limit=10&page=1",
+		},
+		{
+			name:    "baseURL with trailing slash",
+			baseURL: "https://api.example.com/",
+			wantURL: "https://api.example.com/orders/v1.0/501/order/active?limit=10&page=1",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var actualURL string
+			mockClient := &mockHTTPClient{
+				getFunc: func(ctx context.Context, url string, result interface{}) error {
+					actualURL = url
+					return nil
+				},
+			}
+
+			config := api.ApiConfig{
+				BaseURL: tc.baseURL,
+				Version: "v1.0",
+			}
+			ordersApi := NewOrdersApi(config, mockClient)
+
+			_, _ = ordersApi.GetActiveOrders(context.Background(), 1, 10)
+
+			if actualURL != tc.wantURL {
+				t.Errorf("Expected URL %s, got %s", tc.wantURL, actualURL)
+			}
+			// Verify no double slashes (excluding protocol)
+			urlWithoutProtocol := strings.TrimPrefix(strings.TrimPrefix(actualURL, "http://"), "https://")
+			if strings.Contains(urlWithoutProtocol, "//") {
+				t.Errorf("URL contains double slash (excluding protocol): %s", actualURL)
+			}
+		})
 	}
 }

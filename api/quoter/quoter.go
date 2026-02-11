@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"net/url"
+	"strings"
 
 	"github.com/dawitel/solana-fusion-sdk-go/api"
 	"github.com/dawitel/solana-fusion-sdk-go/api/http"
@@ -19,7 +20,9 @@ type QuoterApi struct {
 
 // NewQuoterApi creates a new QuoterApi
 func NewQuoterApi(config api.ApiConfig, client http.Client) *QuoterApi {
-	baseURL := fmt.Sprintf("%s/quoter/%s/501", config.BaseURL, config.Version)
+	// Remove trailing slash from BaseURL to avoid double slashes
+	baseURL := strings.TrimSuffix(config.BaseURL, "/")
+	baseURL = fmt.Sprintf("%s/quoter/%s/501", baseURL, config.Version)
 
 	return &QuoterApi{
 		baseURL: baseURL,
@@ -49,9 +52,9 @@ func (q *QuoterApi) GetQuote(
 	}
 
 	var result QuoteDTO
-	path := fmt.Sprintf("/quote?%s", params.Encode())
+	url := fmt.Sprintf("%s/quote?%s", q.baseURL, params.Encode())
 
-	err := q.client.Get(ctx, q.baseURL+path, &result)
+	err := q.client.Get(ctx, url, &result)
 	if err != nil {
 		return nil, err
 	}

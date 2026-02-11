@@ -67,3 +67,36 @@ func TestAddressFromBuffer(t *testing.T) {
 		t.Errorf("Expected 32 bytes, got %d", len(addr.ToBuffer()))
 	}
 }
+
+func TestAddress_NilHandling(t *testing.T) {
+	var nilAddr *Address
+
+	// Test ToString with nil
+	if nilAddr.ToString() != "" {
+		t.Error("Expected empty string for nil address ToString")
+	}
+
+	// Test ToBuffer with nil
+	if nilAddr.ToBuffer() != nil {
+		t.Error("Expected nil for nil address ToBuffer")
+	}
+
+	// Test Bytes with nil
+	if nilAddr.Bytes() != nil {
+		t.Error("Expected nil for nil address Bytes")
+	}
+
+	// Test IsNative with nil
+	if nilAddr.IsNative() {
+		t.Error("Expected false for nil address IsNative")
+	}
+
+	// Test Equal with nil
+	validAddr := MustAddressFromString("11111111111111111111111111111111")
+	if nilAddr.Equal(validAddr) {
+		t.Error("Expected false when comparing nil address with valid address")
+	}
+	if !nilAddr.Equal(nil) {
+		t.Error("Expected true when comparing nil address with nil")
+	}
+}

@@ -113,6 +113,9 @@ func AddressFromBigInt(val *big.Int) *Address {
 
 // ToString returns the base58 encoded string representation
 func (a *Address) ToString() string {
+	if a == nil {
+		return ""
+	}
 	return base58.Encode(a.buf)
 }
 
@@ -123,11 +126,17 @@ func (a *Address) String() string {
 
 // ToBuffer returns the byte buffer representation
 func (a *Address) ToBuffer() []byte {
+	if a == nil {
+		return nil
+	}
 	return a.buf
 }
 
 // Bytes returns the byte buffer (alias for ToBuffer)
 func (a *Address) Bytes() []byte {
+	if a == nil {
+		return nil
+	}
 	return a.buf
 }
 
@@ -149,16 +158,25 @@ func (a *Address) Equal(other *Address) bool {
 
 // IsNative checks if the address is the native SOL address
 func (a *Address) IsNative() bool {
+	if a == nil {
+		return false
+	}
 	return a.Equal(NATIVE)
 }
 
 // ToPublicKey converts the Address to a solana.PublicKey
 func (a *Address) ToPublicKey() solana.PublicKey {
+	if a == nil {
+		return solana.PublicKey{}
+	}
 	return solana.PublicKey(a.buf)
 }
 
 // MarshalJSON implements json.Marshaler
 func (a *Address) MarshalJSON() ([]byte, error) {
+	if a == nil {
+		return []byte("null"), nil
+	}
 	return []byte(`"` + a.ToString() + `"`), nil
 }
 

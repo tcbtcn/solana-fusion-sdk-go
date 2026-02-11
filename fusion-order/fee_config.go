@@ -51,6 +51,12 @@ func NewFeeConfig(
 			surplusShare.IsZero())
 
 	if isProtocolFeeInvalid {
+		if protocolDstAta == nil && (!protocolFee.IsZero() || !surplusShare.IsZero()) {
+			return nil, errors.New("protocol fee config mismatch: protocolDstAta is nil but protocolFee or surplusShare is non-zero")
+		}
+		if protocolDstAta != nil && protocolFee.IsZero() && surplusShare.IsZero() {
+			return nil, errors.New("protocol fee config mismatch: protocolDstAta is provided but both protocolFee and surplusShare are zero")
+		}
 		return nil, errors.New("protocol fee config mismatch")
 	}
 
@@ -61,6 +67,12 @@ func NewFeeConfig(
 		(integratorDstAta != nil && integratorFee.IsZero())
 
 	if isIntegratorFeeInvalid {
+		if integratorDstAta == nil && !integratorFee.IsZero() {
+			return nil, errors.New("integrator fee config mismatch: integratorDstAta is nil but integratorFee is non-zero")
+		}
+		if integratorDstAta != nil && integratorFee.IsZero() {
+			return nil, errors.New("integrator fee config mismatch: integratorDstAta is provided but integratorFee is zero")
+		}
 		return nil, errors.New("integrator fee config mismatch")
 	}
 

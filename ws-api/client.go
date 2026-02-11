@@ -58,7 +58,7 @@ func (c *WebSocketClient) Init() {
 		dialer := websocket.Dialer{}
 		conn, _, err := dialer.Dial(url, headers)
 		if err != nil {
-			c.handleError(err)
+			c.handleError(fmt.Errorf("failed to connect to WebSocket URL %s: %w", url, err))
 			return
 		}
 
@@ -160,8 +160,8 @@ func (c *WebSocketClient) Off(event WebSocketEvent, cb interface{}) {
 
 	callbacks := c.callbacks[event]
 	for i, existingCb := range callbacks {
-		// Use reflect to compare function pointers since direct comparison doesn't work
-		if reflect.DeepEqual(existingCb, cb) {
+		// Use reflect to compare function pointers since direct comparison doesn't work in Go
+		if reflect.ValueOf(existingCb).Pointer() == reflect.ValueOf(cb).Pointer() {
 			c.callbacks[event] = append(callbacks[:i], callbacks[i+1:]...)
 			break
 		}
@@ -249,16 +249,24 @@ func (c *WebSocketClient) IsConnected() bool {
 }
 
 // castURL converts HTTP URL to WebSocket URL
+// Validates and converts http/https URLs to ws/wss, or adds wss:// prefix if no protocol is specified
 func castURL(url string) string {
+	if url == "" {
+		return "wss://"
+	}
+
+	url = strings.TrimSpace(url)
 	url = strings.TrimSuffix(url, "/")
+
 	if strings.HasPrefix(url, "http://") {
 		return strings.Replace(url, "http://", "ws://", 1)
 	}
 	if strings.HasPrefix(url, "https://") {
 		return strings.Replace(url, "https://", "wss://", 1)
 	}
-	if !strings.HasPrefix(url, "ws://") && !strings.HasPrefix(url, "wss://") {
-		return "wss://" + url
+	if strings.HasPrefix(url, "ws://") || strings.HasPrefix(url, "wss://") {
+		return url
 	}
-	return url
+	// Default to wss:// if no protocol specified
+	return "wss://" + url
 }
