@@ -16,7 +16,7 @@ func TestCancellableOrderFromJSON(t *testing.T) {
 		Order: orders.OrderDTO{
 			ID:                          1,
 			Receiver:                    "11111111111111111111111111111111",
-			CancellationAuctionDuration: 100,
+			CancellationAuctionDuration: 0,
 			SrcMint:                     "So11111111111111111111111111111111111111112",
 			DstMint:                     "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
 			SrcAmount:                   "1000000000000000000",
@@ -26,9 +26,10 @@ func TestCancellableOrderFromJSON(t *testing.T) {
 			SrcAssetIsNative:            false,
 			DstAssetIsNative:            false,
 			Fee: orders.FeeDTO{
-				ProtocolFee:       0,
-				IntegratorFee:     0,
-				SurplusPercentage: 0,
+				ProtocolFee:           0,
+				IntegratorFee:         0,
+				SurplusPercentage:     0,
+				MaxCancellationPremium: "0",
 			},
 			DutchAuctionData: orders.DutchAuctionDataDTO{
 				StartTime:           1000000000,

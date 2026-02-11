@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -38,7 +39,11 @@ func NewHTTPClient(baseURL string, authKey string) *HTTPClient {
 
 // Get performs a GET request
 func (c *HTTPClient) Get(ctx context.Context, path string, result interface{}) error {
-	req, err := http.NewRequestWithContext(ctx, "GET", c.baseURL+path, nil)
+	url := path
+	if !strings.HasPrefix(path, "http://") && !strings.HasPrefix(path, "https://") {
+		url = c.baseURL + path
+	}
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return err
 	}
@@ -77,7 +82,11 @@ func (c *HTTPClient) Post(ctx context.Context, path string, data interface{}, re
 		}
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+path, &body)
+	url := path
+	if !strings.HasPrefix(path, "http://") && !strings.HasPrefix(path, "https://") {
+		url = c.baseURL + path
+	}
+	req, err := http.NewRequestWithContext(ctx, "POST", url, &body)
 	if err != nil {
 		return err
 	}

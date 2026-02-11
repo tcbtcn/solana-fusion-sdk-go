@@ -1,6 +1,7 @@
 package fusionorder
 
 import (
+	"encoding/binary"
 	"math/big"
 	"testing"
 
@@ -146,8 +147,10 @@ func TestFromFillInstruction(t *testing.T) {
 	programID := domains.MustAddressFromString(idl.FusionSwapProgramAddress)
 	fillAmount := big.NewInt(100)
 
+	// Instruction data structure: [discriminator][order config][amount]
+	// Encode amount as u64 little-endian
 	fillAmountBytes := make([]byte, 8)
-	fillAmount.FillBytes(fillAmountBytes)
+	binary.LittleEndian.PutUint64(fillAmountBytes, fillAmount.Uint64())
 
 	instruction := types.NewTransactionInstruction(
 		programID,
@@ -170,7 +173,7 @@ func TestFromFillInstruction(t *testing.T) {
 			{Pubkey: programID, IsSigner: false, IsWritable: false},
 			{Pubkey: programID, IsSigner: false, IsWritable: false},
 		},
-		append(append(idl.FillOrderDiscriminator, fillAmountBytes...), borshData...),
+		append(append(idl.FillOrderDiscriminator, borshData...), fillAmountBytes...),
 	)
 
 	decodedOrder, err := FromFillInstruction(instruction)
@@ -264,29 +267,33 @@ func TestFromResolverCancelInstruction(t *testing.T) {
 	borshData, _ := config.SerializeBorsh()
 
 	maker := domains.MustAddressFromString("11111111111111111111111111111111")
-	resolver := domains.MustAddressFromString("33333333333333333333333333333333")
+	resolver := domains.MustAddressFromString("11111111111111111111111111111113")
 	programID := domains.MustAddressFromString(idl.FusionSwapProgramAddress)
 	rewardLimit := big.NewInt(500000)
 
+	// Instruction data structure: [discriminator][order config][rewardLimit]
+	// Encode rewardLimit as u64 little-endian
 	rewardLimitBytes := make([]byte, 8)
-	rewardLimit.FillBytes(rewardLimitBytes)
+	binary.LittleEndian.PutUint64(rewardLimitBytes, rewardLimit.Uint64())
 
 	instruction := types.NewTransactionInstruction(
 		programID,
 		[]types.AccountMeta{
-			{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false},
-			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: false},
-			{Pubkey: originalOrder.SrcMint(), IsSigner: false, IsWritable: false},
-			{Pubkey: domains.TOKEN_PROGRAM_ID, IsSigner: false, IsWritable: false},
-			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true},
-			{Pubkey: maker, IsSigner: true, IsWritable: true},
-			{Pubkey: resolver, IsSigner: true, IsWritable: true},
-			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true},
-			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true},
-			{Pubkey: domains.ASSOCIATED_TOKEN_PROGRAM_ID, IsSigner: false, IsWritable: false},
-			{Pubkey: programID, IsSigner: false, IsWritable: false},
+			{Pubkey: resolver, IsSigner: true, IsWritable: true},                    // 0: resolver
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: false}, // 1: resolverAccess
+			{Pubkey: maker, IsSigner: false, IsWritable: true},                      // 2: maker
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: false}, // 3: makerReceiver
+			{Pubkey: originalOrder.SrcMint(), IsSigner: false, IsWritable: false},    // 4: srcMint
+			{Pubkey: originalOrder.DstMint(), IsSigner: false, IsWritable: false},   // 5: dstMint
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true}, // 6: escrow
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true}, // 7: escrowSrcAta
+			{Pubkey: domains.MustAddressFromString("11111111111111111111111111111111"), IsSigner: false, IsWritable: true}, // 8: makerSrcAta (optional)
+			{Pubkey: domains.TOKEN_PROGRAM_ID, IsSigner: false, IsWritable: false},  // 9: srcTokenProgram
+			{Pubkey: domains.SYSTEM_PROGRAM_ID, IsSigner: false, IsWritable: false}, // 10: systemProgram
+			{Pubkey: programID, IsSigner: false, IsWritable: false}, // 11: protocolDstAta (optional, use programID when nil)
+			{Pubkey: programID, IsSigner: false, IsWritable: false}, // 12: integratorDstAta (optional, use programID when nil)
 		},
-		append(append(idl.CancelOrderByResolverDiscriminator, rewardLimitBytes...), borshData...),
+		append(append(idl.CancelOrderByResolverDiscriminator, borshData...), rewardLimitBytes...),
 	)
 
 	decodedOrder, err := FromResolverCancelInstruction(instruction)

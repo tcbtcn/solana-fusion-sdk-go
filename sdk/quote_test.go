@@ -171,7 +171,7 @@ func TestQuote_ToOrder_WithReceiver(t *testing.T) {
 	srcToken := domains.MustAddressFromString("So11111111111111111111111111111111111111112")
 	dstToken := domains.MustAddressFromString("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v")
 	signer := domains.MustAddressFromString("11111111111111111111111111111111")
-	receiver := domains.MustAddressFromString("22222222222222222222222222222222")
+	receiver := domains.MustAddressFromString("11111111111111111111111111111112")
 
 	quote, err := QuoteFromJSON(srcToken, dstToken, signer, json)
 	if err != nil {

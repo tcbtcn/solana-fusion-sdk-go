@@ -24,7 +24,9 @@ func TestMulDiv_RoundingCeil(t *testing.T) {
 	x := big.NewInt(50)
 
 	result := MulDiv(a, b, x, RoundingCeil)
-	expected := big.NewInt(403)
+	// (100 * 201) / 50 = 20100 / 50 = 402 exactly (no remainder)
+	// Ceiling of 402.0 is 402 (TypeScript mulDiv returns 402 when remainder is 0)
+	expected := big.NewInt(402)
 
 	if result.Cmp(expected) != 0 {
 		t.Errorf("Expected %s (ceiled), got %s", expected.String(), result.String())

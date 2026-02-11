@@ -67,11 +67,15 @@ func FromFillInstruction(ix *types.TransactionInstruction) (*FusionOrder, error)
 		return nil, fmt.Errorf("invalid instruction discriminator: expected fill instruction")
 	}
 
-	// Decode order config from Borsh data (skip 8-byte discriminator, then skip 8-byte amount)
+	// Instruction data structure: [discriminator(8)][order config(variable)][amount(8)]
+	// We need to deserialize only the order config part, excluding the trailing 8-byte amount
 	if len(ix.Data) < 16 {
 		return nil, errors.New("instruction data too short")
 	}
-	orderConfig, err := deserializeOrderConfig(ix.Data[8:])
+
+	// Calculate order config length: total data - discriminator (8) - amount (8)
+	orderConfigData := ix.Data[8 : len(ix.Data)-8]
+	orderConfig, err := deserializeOrderConfig(orderConfigData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode order config: %w", err)
 	}
@@ -81,10 +85,10 @@ func FromFillInstruction(ix *types.TransactionInstruction) (*FusionOrder, error)
 		return nil, errors.New("insufficient accounts in instruction")
 	}
 
-	srcMint := ix.Accounts[4].Pubkey   // index 4
-	dstMint := ix.Accounts[5].Pubkey   // index 5
-	receiver := ix.Accounts[3].Pubkey  // index 3
-	protocolDstAta := ix.Accounts[15].Pubkey // index 15
+	srcMint := ix.Accounts[4].Pubkey           // index 4
+	dstMint := ix.Accounts[5].Pubkey           // index 5
+	receiver := ix.Accounts[3].Pubkey          // index 3
+	protocolDstAta := ix.Accounts[15].Pubkey   // index 15
 	integratorDstAta := ix.Accounts[16].Pubkey // index 16
 
 	return fromContractOrder(orderConfig, struct {
@@ -115,11 +119,15 @@ func FromResolverCancelInstruction(ix *types.TransactionInstruction) (*FusionOrd
 		return nil, fmt.Errorf("invalid instruction discriminator: expected cancelByResolver instruction")
 	}
 
-	// Decode order config from Borsh data (skip 8-byte discriminator, then skip 8-byte rewardLimit)
+	// Instruction data structure: [discriminator(8)][order config(variable)][rewardLimit(8)]
+	// We need to deserialize only the order config part, excluding the trailing 8-byte rewardLimit
 	if len(ix.Data) < 16 {
 		return nil, errors.New("instruction data too short")
 	}
-	orderConfig, err := deserializeOrderConfig(ix.Data[8:])
+
+	// Calculate order config length: total data - discriminator (8) - rewardLimit (8)
+	orderConfigData := ix.Data[8 : len(ix.Data)-8]
+	orderConfig, err := deserializeOrderConfig(orderConfigData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode order config: %w", err)
 	}
@@ -129,10 +137,10 @@ func FromResolverCancelInstruction(ix *types.TransactionInstruction) (*FusionOrd
 		return nil, errors.New("insufficient accounts in instruction")
 	}
 
-	srcMint := ix.Accounts[4].Pubkey   // index 4
-	dstMint := ix.Accounts[5].Pubkey   // index 5
-	receiver := ix.Accounts[3].Pubkey  // index 3
-	protocolDstAta := ix.Accounts[11].Pubkey // index 11
+	srcMint := ix.Accounts[4].Pubkey           // index 4
+	dstMint := ix.Accounts[5].Pubkey           // index 5
+	receiver := ix.Accounts[3].Pubkey          // index 3
+	protocolDstAta := ix.Accounts[11].Pubkey   // index 11
 	integratorDstAta := ix.Accounts[12].Pubkey // index 12
 
 	return fromContractOrder(orderConfig, struct {
@@ -248,16 +256,16 @@ func fromContractOrder(
 	}
 
 	return NewFusionOrder(orderInfo, auctionDetails, struct {
-		SrcAssetIsNative          bool
-		DstAssetIsNative          bool
-		OrderExpirationDelay      uint32
-		Fees                      *FeeConfig
+		SrcAssetIsNative           bool
+		DstAssetIsNative           bool
+		OrderExpirationDelay       uint32
+		Fees                       *FeeConfig
 		ResolverCancellationConfig *ResolverCancellationConfig
 	}{
-		SrcAssetIsNative:          reducedConfig.SrcAssetIsNative,
-		DstAssetIsNative:          reducedConfig.DstAssetIsNative,
-		OrderExpirationDelay:      orderExpirationDelay,
-		Fees:                      fees,
+		SrcAssetIsNative:           reducedConfig.SrcAssetIsNative,
+		DstAssetIsNative:           reducedConfig.DstAssetIsNative,
+		OrderExpirationDelay:       orderExpirationDelay,
+		Fees:                       fees,
 		ResolverCancellationConfig: resolverCancellationConfig,
 	})
 }

@@ -18,11 +18,12 @@ func MulDiv(a, b, x *big.Int, rounding Rounding) *big.Int {
 		panic("division by zero")
 	}
 
-	result := new(big.Int).Mul(a, b)
-	result = result.Div(result, x)
+	product := new(big.Int).Mul(a, b)
+	result := new(big.Int).Div(product, x)
 
 	if rounding == RoundingCeil {
-		remainder := new(big.Int).Mod(new(big.Int).Mul(a, b), x)
+		// Check if there's a remainder - if so, round up
+		remainder := new(big.Int).Mod(product, x)
 		if remainder.Sign() > 0 {
 			result = result.Add(result, big.NewInt(1))
 		}

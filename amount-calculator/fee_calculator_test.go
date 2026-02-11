@@ -22,10 +22,11 @@ func TestNewFeeCalculator(t *testing.T) {
 
 func TestFromFeeConfig_Valid(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
-	integratorFee := domains.BpsFromPercent(2.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
 
-	feeConfig, err := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, surplusShare)
+	// Valid: protocolDstAta provided with protocolFee and surplusShare
+	feeConfig, err := fusionorder.NewFeeConfig(protocolDstAta, nil, protocolFee, domains.ZeroBps, surplusShare)
 	if err != nil {
 		t.Fatalf("Failed to create fee config: %v", err)
 	}
@@ -108,7 +109,8 @@ func TestFeeCalculator_GetUserReceiveAmount_NoSurplus(t *testing.T) {
 	estimatedTakingAmount := big.NewInt(1000)
 
 	amount := calculator.GetUserReceiveAmount(auctionTakingAmount, estimatedTakingAmount)
-	expected := big.NewInt(990)
+	// Expected: 1000 - 10 (protocolFee) - 20 (integratorFee) = 970
+	expected := big.NewInt(970)
 
 	if amount.Cmp(expected) != 0 {
 		t.Errorf("Expected user receive amount %s, got %s", expected.String(), amount.String())
@@ -125,7 +127,13 @@ func TestFeeCalculator_GetUserReceiveAmount_WithSurplus(t *testing.T) {
 	estimatedTakingAmount := big.NewInt(500)
 
 	amount := calculator.GetUserReceiveAmount(auctionTakingAmount, estimatedTakingAmount)
-	expected := big.NewInt(745)
+	// Expected: protocolFee = 10, integratorFee = 20
+	// userAmountWithoutFee = 1000 - 10 - 20 = 970
+	// surplus = 970 - 500 = 470
+	// surplusFee = 470 * 50% = 235
+	// totalProtocolFee = 10 + 235 = 245
+	// userReceiveAmount = 1000 - 245 - 20 = 735
+	expected := big.NewInt(735)
 
 	if amount.Cmp(expected) != 0 {
 		t.Errorf("Expected user receive amount with surplus %s, got %s", expected.String(), amount.String())

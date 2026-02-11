@@ -52,8 +52,9 @@ func TestNewOrdersApi(t *testing.T) {
 func TestOrdersApi_GetOrderStatus_Success(t *testing.T) {
 	orderHash := "test-order-hash"
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/order/status/"+orderHash {
-			t.Errorf("Expected path /order/status/%s, got %s", orderHash, r.URL.Path)
+		expectedPath := "/orders/v1.0/501/order/status/" + orderHash
+		if r.URL.Path != expectedPath {
+			t.Errorf("Expected path %s, got %s", expectedPath, r.URL.Path)
 		}
 
 		status := OrderStatusDTO{

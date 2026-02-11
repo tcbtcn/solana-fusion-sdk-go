@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 
 	solana "github.com/gagliardetto/solana-go"
 	"github.com/mr-tron/base58"
@@ -88,27 +89,22 @@ func AddressFromBuffer(buf []byte) *Address {
 	return &Address{buf: buf}
 }
 
-// AddressFromBigInt creates an Address from a big integer (64-byte hex string)
-func AddressFromBigInt(val string) (*Address, error) {
-	// Convert hex string to bytes (pad to 32 bytes)
-	if len(val) < 2 || val[0:2] != "0x" {
-		return nil, errors.New("invalid hex string")
-	}
-
-	hexStr := val[2:]
-	// Pad to 64 hex chars (32 bytes)
-	for len(hexStr) < 64 {
-		hexStr = "0" + hexStr
-	}
-
+// AddressFromBigInt creates an Address from a big.Int
+// This matches TypeScript Address.fromBigInt(val: bigint) behavior
+// TypeScript converts: val.toString(16).padStart(64, '0') -> hex string -> bytes (big-endian, 32 bytes)
+func AddressFromBigInt(val *big.Int) *Address {
+	// Convert big.Int to hex string, pad to 64 hex chars (32 bytes), then convert to bytes
+	hexStr := fmt.Sprintf("%064x", val)
+	
+	// Convert hex string to bytes (big-endian, 32 bytes)
 	buf := make([]byte, 32)
 	for i := 0; i < 32; i++ {
 		var b byte
-			_, _ = fmt.Sscanf(hexStr[i*2:(i+1)*2], "%02x", &b)
+		fmt.Sscanf(hexStr[i*2:(i+1)*2], "%02x", &b)
 		buf[i] = b
 	}
 
-	return AddressFromBuffer(buf), nil
+	return AddressFromBuffer(buf)
 }
 
 // ToString returns the base58 encoded string representation

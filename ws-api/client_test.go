@@ -2,6 +2,7 @@ package wsapi
 
 import (
 	"errors"
+	"reflect"
 	"sync"
 	"testing"
 )
@@ -64,7 +65,7 @@ func (m *mockProvider) Off(event WebSocketEvent, cb interface{}) {
 
 	callbacks := m.callbacks[event]
 	for i, existingCb := range callbacks {
-		if existingCb == cb {
+		if reflect.DeepEqual(existingCb, cb) {
 			m.callbacks[event] = append(callbacks[:i], callbacks[i+1:]...)
 			break
 		}

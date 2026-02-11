@@ -50,10 +50,9 @@ func (f *FeeCalculator) GetIntegratorFee(auctionTakingAmount *big.Int) *big.Int 
 		return big.NewInt(0)
 	}
 
-	fraction := f.integratorFee.ToFraction(fusionorder.Base1E5)
-	feeBig := big.NewInt(int64(fraction * 100000))
-
-	return math.MulDiv(auctionTakingAmount, feeBig, fusionorder.Base1E5, math.RoundingFloor)
+	// BPS is 0-10000 where 10000 = 100%
+	// Fee = (amount * bps) / 10000
+	return math.MulDiv(auctionTakingAmount, f.integratorFee.Value(), big.NewInt(10000), math.RoundingFloor)
 }
 
 // GetUserReceiveAmount calculates the amount the user will receive
@@ -87,9 +86,9 @@ func (f *FeeCalculator) getAmounts(
 	if f.protocolFee.IsZero() {
 		protocolFee = big.NewInt(0)
 	} else {
-		fraction := f.protocolFee.ToFraction(fusionorder.Base1E5)
-		feeBig := big.NewInt(int64(fraction * 100000))
-		protocolFee = math.MulDiv(auctionTakingAmount, feeBig, fusionorder.Base1E5, math.RoundingFloor)
+		// BPS is 0-10000 where 10000 = 100%
+		// Fee = (amount * bps) / 10000
+		protocolFee = math.MulDiv(auctionTakingAmount, f.protocolFee.Value(), big.NewInt(10000), math.RoundingFloor)
 	}
 
 	integratorFee := f.GetIntegratorFee(auctionTakingAmount)
@@ -100,15 +99,18 @@ func (f *FeeCalculator) getAmounts(
 	if userAmountWithoutFee.Cmp(estimatedTakingAmount) > 0 {
 		surplus := new(big.Int).Sub(userAmountWithoutFee, estimatedTakingAmount)
 		if !f.surplusShare.IsZero() {
-			fraction := f.surplusShare.ToFraction(fusionorder.Base1E2)
-			surplusFeeBig := big.NewInt(int64(fraction * 100))
-			surplusFee := math.MulDiv(surplus, surplusFeeBig, fusionorder.Base1E2, math.RoundingFloor)
+			// Surplus share is stored as BPS (0-10000 where 10000 = 100%)
+			// Surplus fee = (surplus * surplusShare) / 10000
+			surplusFee := math.MulDiv(surplus, f.surplusShare.Value(), big.NewInt(10000), math.RoundingFloor)
 			protocolFee = protocolFee.Add(protocolFee, surplusFee)
 		}
 	}
 
+	userReceiveAmount := new(big.Int).Sub(auctionTakingAmount, protocolFee)
+	userReceiveAmount = userReceiveAmount.Sub(userReceiveAmount, integratorFee)
+
 	return amountsResult{
 		ProtocolFeeAmount: protocolFee,
-		UserReceiveAmount: new(big.Int).Sub(auctionTakingAmount, protocolFee),
+		UserReceiveAmount: userReceiveAmount,
 	}
 }

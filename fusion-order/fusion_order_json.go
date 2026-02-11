@@ -152,9 +152,15 @@ func FromJSON(jsonData *FusionOrderJSON) (*FusionOrder, error) {
 	}
 
 	// Parse resolver cancellation config
-	maxCancellationPremium, ok := new(big.Int).SetString(jsonData.Fee.MaxCancellationPremium, 10)
-	if !ok {
-		return nil, errors.New("invalid maxCancellationPremium")
+	var maxCancellationPremium *big.Int
+	if jsonData.Fee.MaxCancellationPremium == "" {
+		maxCancellationPremium = big.NewInt(0)
+	} else {
+		var ok bool
+		maxCancellationPremium, ok = new(big.Int).SetString(jsonData.Fee.MaxCancellationPremium, 10)
+		if !ok {
+			return nil, errors.New("invalid maxCancellationPremium")
+		}
 	}
 	resolverCancellationConfig, err := NewResolverCancellationConfig(maxCancellationPremium, jsonData.CancellationAuctionDuration)
 	if err != nil {

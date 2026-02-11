@@ -25,7 +25,7 @@ func TestNewFeeConfig_Success(t *testing.T) {
 }
 
 func TestNewFeeConfig_WithIntegrator(t *testing.T) {
-	integratorDstAta := domains.MustAddressFromString("22222222222222222222222222222222")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
 	integratorFee := domains.BpsFromPercent(2.0, nil)
 
 	feeConfig, err := NewFeeConfig(nil, integratorDstAta, domains.ZeroBps, integratorFee, domains.ZeroBps)
@@ -42,9 +42,8 @@ func TestNewFeeConfig_WithIntegrator(t *testing.T) {
 
 func TestNewFeeConfig_ProtocolFeeMismatch(t *testing.T) {
 	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
-	protocolFee := domains.BpsFromPercent(1.0, nil)
-
-	_, err := NewFeeConfig(protocolDstAta, nil, protocolFee, domains.ZeroBps, domains.ZeroBps)
+	// Invalid: protocolDstAta is provided but both protocolFee and surplusShare are zero
+	_, err := NewFeeConfig(protocolDstAta, nil, domains.ZeroBps, domains.ZeroBps, domains.ZeroBps)
 	if err == nil {
 		t.Fatal("Expected error for protocol fee config mismatch")
 	}
@@ -114,7 +113,7 @@ func TestOnlyProtocol(t *testing.T) {
 }
 
 func TestOnlyIntegrator(t *testing.T) {
-	integratorDstAta := domains.MustAddressFromString("22222222222222222222222222222222")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
 	integratorFee := domains.BpsFromPercent(2.0, nil)
 
 	feeConfig, err := OnlyIntegrator(integratorDstAta, integratorFee)

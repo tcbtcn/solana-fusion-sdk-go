@@ -128,7 +128,7 @@ func TestFusionSwapContract_Fill(t *testing.T) {
 	}
 
 	maker := domains.MustAddressFromString("11111111111111111111111111111111")
-	taker := domains.MustAddressFromString("22222222222222222222222222222222")
+	taker := domains.MustAddressFromString("11111111111111111111111111111112")
 	fillAmount := big.NewInt(100)
 
 	instruction, err := contract.Fill(order, fillAmount, struct {
@@ -281,7 +281,7 @@ func TestFusionSwapContract_CancelOrderByResolver(t *testing.T) {
 	}
 
 	maker := domains.MustAddressFromString("11111111111111111111111111111111")
-	resolver := domains.MustAddressFromString("33333333333333333333333333333333")
+	resolver := domains.MustAddressFromString("11111111111111111111111111111113")
 	rewardLimit := big.NewInt(500000)
 
 	instruction, err := contract.CancelOrderByResolver(order, struct {
@@ -356,7 +356,7 @@ func TestFusionSwapContract_CancelOrderByResolver_NoResolverConfig(t *testing.T)
 	}
 
 	maker := domains.MustAddressFromString("11111111111111111111111111111111")
-	resolver := domains.MustAddressFromString("33333333333333333333333333333333")
+	resolver := domains.MustAddressFromString("11111111111111111111111111111113")
 
 	_, err = contract.CancelOrderByResolver(order, struct {
 		Maker           *domains.Address
@@ -402,7 +402,7 @@ func TestFusionSwapContract_Create_WithFees(t *testing.T) {
 		t.Fatalf("Failed to create auction details: %v", err)
 	}
 
-	protocolDstAta := domains.MustAddressFromString("44444444444444444444444444444444")
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111114")
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
 	fees, err := fusionorder.NewFeeConfig(protocolDstAta, nil, protocolFee, domains.ZeroBps, surplusShare)
@@ -552,7 +552,7 @@ func TestFusionSwapContract_Fill_WithNativeDst(t *testing.T) {
 	}
 
 	maker := domains.MustAddressFromString("11111111111111111111111111111111")
-	taker := domains.MustAddressFromString("22222222222222222222222222222222")
+	taker := domains.MustAddressFromString("11111111111111111111111111111112")
 	fillAmount := big.NewInt(100)
 
 	instruction, err := contract.Fill(order, fillAmount, struct {

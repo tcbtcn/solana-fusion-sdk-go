@@ -13,7 +13,7 @@ func TestAmountCalculator_GetTotalFee(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	integratorFee := domains.BpsFromPercent(2.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
-	
+
 	now := uint32(time.Now())
 	auctionDetails, _ := fusionorder.NewAuctionDetails(struct {
 		StartTime       uint32
@@ -26,8 +26,10 @@ func TestAmountCalculator_GetTotalFee(t *testing.T) {
 		InitialRateBump: 0,
 		Points:          []fusionorder.AuctionPoint{},
 	})
-	
-	feeConfig, _ := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, surplusShare)
+
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
+	feeConfig, _ := fusionorder.NewFeeConfig(protocolDstAta, integratorDstAta, protocolFee, integratorFee, surplusShare)
 	calculator := NewAmountCalculator(
 		FromAuctionData(auctionDetails),
 		FromFeeConfig(feeConfig),
@@ -48,7 +50,7 @@ func TestAmountCalculator_GetIntegratorFee(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	integratorFee := domains.BpsFromPercent(2.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
-	
+
 	now := uint32(time.Now())
 	auctionDetails, _ := fusionorder.NewAuctionDetails(struct {
 		StartTime       uint32
@@ -61,8 +63,10 @@ func TestAmountCalculator_GetIntegratorFee(t *testing.T) {
 		InitialRateBump: 0,
 		Points:          []fusionorder.AuctionPoint{},
 	})
-	
-	feeConfig, _ := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, surplusShare)
+
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
+	feeConfig, _ := fusionorder.NewFeeConfig(protocolDstAta, integratorDstAta, protocolFee, integratorFee, surplusShare)
 	calculator := NewAmountCalculator(
 		FromAuctionData(auctionDetails),
 		FromFeeConfig(feeConfig),
@@ -82,7 +86,7 @@ func TestAmountCalculator_GetProtocolFee(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	integratorFee := domains.BpsFromPercent(2.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
-	
+
 	now := uint32(time.Now())
 	auctionDetails, _ := fusionorder.NewAuctionDetails(struct {
 		StartTime       uint32
@@ -95,8 +99,10 @@ func TestAmountCalculator_GetProtocolFee(t *testing.T) {
 		InitialRateBump: 0,
 		Points:          []fusionorder.AuctionPoint{},
 	})
-	
-	feeConfig, _ := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, surplusShare)
+
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
+	feeConfig, _ := fusionorder.NewFeeConfig(protocolDstAta, integratorDstAta, protocolFee, integratorFee, surplusShare)
 	calculator := NewAmountCalculator(
 		FromAuctionData(auctionDetails),
 		FromFeeConfig(feeConfig),
@@ -127,7 +133,7 @@ func TestAmountCalculator_GetUserReceiveAmount(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	integratorFee := domains.BpsFromPercent(2.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
-	
+
 	now := uint32(time.Now())
 	auctionDetails, _ := fusionorder.NewAuctionDetails(struct {
 		StartTime       uint32
@@ -140,8 +146,10 @@ func TestAmountCalculator_GetUserReceiveAmount(t *testing.T) {
 		InitialRateBump: 0,
 		Points:          []fusionorder.AuctionPoint{},
 	})
-	
-	feeConfig, _ := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, surplusShare)
+
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
+	feeConfig, _ := fusionorder.NewFeeConfig(protocolDstAta, integratorDstAta, protocolFee, integratorFee, surplusShare)
 	calculator := NewAmountCalculator(
 		FromAuctionData(auctionDetails),
 		FromFeeConfig(feeConfig),
@@ -151,7 +159,10 @@ func TestAmountCalculator_GetUserReceiveAmount(t *testing.T) {
 	estimatedTakingAmount := big.NewInt(500)
 
 	userAmount := calculator.GetUserReceiveAmount(takingAmount, estimatedTakingAmount, now)
-	expected := big.NewInt(745)
+	// Expected: same calculation as TestFeeCalculator_GetUserReceiveAmount_WithSurplus
+	// Since InitialRateBump is 0, auctionAmount = takingAmount = 1000
+	// userReceiveAmount = 735 (same as fee calculator test)
+	expected := big.NewInt(735)
 	if userAmount.Cmp(expected) != 0 {
 		t.Errorf("Expected user receive amount %s, got %s", expected.String(), userAmount.String())
 	}
@@ -161,7 +172,7 @@ func TestAmountCalculator_GetRequiredTakingAmount(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	integratorFee := domains.BpsFromPercent(2.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
-	
+
 	now := uint32(time.Now())
 	auctionDetails, _ := fusionorder.NewAuctionDetails(struct {
 		StartTime       uint32
@@ -174,8 +185,10 @@ func TestAmountCalculator_GetRequiredTakingAmount(t *testing.T) {
 		InitialRateBump: 50000,
 		Points:          []fusionorder.AuctionPoint{},
 	})
-	
-	feeConfig, _ := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, surplusShare)
+
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
+	feeConfig, _ := fusionorder.NewFeeConfig(protocolDstAta, integratorDstAta, protocolFee, integratorFee, surplusShare)
 	calculator := NewAmountCalculator(
 		FromAuctionData(auctionDetails),
 		FromFeeConfig(feeConfig),
@@ -192,7 +205,7 @@ func TestAmountCalculator_GetRequiredTakingAmount(t *testing.T) {
 func TestAmountCalculator_ZeroAmounts(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	integratorFee := domains.BpsFromPercent(2.0, nil)
-	
+
 	now := uint32(time.Now())
 	auctionDetails, _ := fusionorder.NewAuctionDetails(struct {
 		StartTime       uint32
@@ -205,7 +218,7 @@ func TestAmountCalculator_ZeroAmounts(t *testing.T) {
 		InitialRateBump: 0,
 		Points:          []fusionorder.AuctionPoint{},
 	})
-	
+
 	feeConfig, _ := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, domains.ZeroBps)
 	calculator := NewAmountCalculator(
 		FromAuctionData(auctionDetails),
@@ -224,7 +237,7 @@ func TestAmountCalculator_ZeroAmounts(t *testing.T) {
 func TestAmountCalculator_LargeAmounts(t *testing.T) {
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	integratorFee := domains.BpsFromPercent(2.0, nil)
-	
+
 	now := uint32(time.Now())
 	auctionDetails, _ := fusionorder.NewAuctionDetails(struct {
 		StartTime       uint32
@@ -237,8 +250,10 @@ func TestAmountCalculator_LargeAmounts(t *testing.T) {
 		InitialRateBump: 0,
 		Points:          []fusionorder.AuctionPoint{},
 	})
-	
-	feeConfig, _ := fusionorder.NewFeeConfig(nil, nil, protocolFee, integratorFee, domains.ZeroBps)
+
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111111")
+	integratorDstAta := domains.MustAddressFromString("11111111111111111111111111111112")
+	feeConfig, _ := fusionorder.NewFeeConfig(protocolDstAta, integratorDstAta, protocolFee, integratorFee, domains.ZeroBps)
 	calculator := NewAmountCalculator(
 		FromAuctionData(auctionDetails),
 		FromFeeConfig(feeConfig),

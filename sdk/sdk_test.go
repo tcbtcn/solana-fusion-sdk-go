@@ -334,9 +334,10 @@ func TestSdk_GetCancellableOrders_Success(t *testing.T) {
 							SrcAssetIsNative:            false,
 							DstAssetIsNative:            false,
 							Fee: orders.FeeDTO{
-								ProtocolFee:       0,
-								IntegratorFee:     0,
-								SurplusPercentage: 0,
+								ProtocolFee:           0,
+								IntegratorFee:         0,
+								SurplusPercentage:     0,
+								MaxCancellationPremium: "1000000",
 							},
 							DutchAuctionData: orders.DutchAuctionDataDTO{
 								StartTime:           1000000000,

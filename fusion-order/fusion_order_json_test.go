@@ -92,7 +92,7 @@ func TestFusionOrder_ToJSON_WithFees(t *testing.T) {
 		t.Fatalf("Failed to create auction details: %v", err)
 	}
 
-	protocolDstAta := domains.MustAddressFromString("44444444444444444444444444444444")
+	protocolDstAta := domains.MustAddressFromString("11111111111111111111111111111114")
 	protocolFee := domains.BpsFromPercent(1.0, nil)
 	surplusShare := domains.BpsFromPercent(50.0, nil)
 	fees, err := NewFeeConfig(protocolDstAta, nil, protocolFee, domains.ZeroBps, surplusShare)

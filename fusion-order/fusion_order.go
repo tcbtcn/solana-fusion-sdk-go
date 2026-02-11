@@ -10,7 +10,6 @@ import (
 	"github.com/dawitel/solana-fusion-sdk-go/domains"
 	"github.com/dawitel/solana-fusion-sdk-go/idl"
 	"github.com/dawitel/solana-fusion-sdk-go/utils/addresses"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/math"
 	"github.com/dawitel/solana-fusion-sdk-go/utils/validation"
 	"github.com/mr-tron/base58"
 )
@@ -63,7 +62,6 @@ func NewFusionOrder(
 
 	deadline := auctionDetails.StartTime + auctionDetails.Duration + orderExpirationDelay
 
-	// Validate values
 	if err := validation.AssertUInteger(orderExpirationDelay, nil); err != nil {
 		return nil, err
 	}
@@ -74,7 +72,6 @@ func NewFusionOrder(
 		return nil, err
 	}
 
-	// Validate amounts (u64 max)
 	u64Max := big.NewInt(0).SetUint64(^uint64(0))
 	if orderInfo.SrcAmount.Cmp(u64Max) > 0 {
 		return nil, errors.New("srcAmount exceeds u64 max")
@@ -96,7 +93,6 @@ func NewFusionOrder(
 		resolverCancellationConfig = AlmostZeroResolverCancellationConfig
 	}
 
-	// Handle native tokens - use wrapped native address
 	srcMint := orderInfo.SrcMint
 	if srcMint.IsNative() {
 		srcMint = domains.WRAPPED_NATIVE
@@ -205,7 +201,7 @@ func (f *FusionOrder) DstAssetIsNative() bool {
 	return f.orderConfig.DstAssetIsNative
 }
 
-// GetEscrow returns the escrow ATA for src token
+// GetEscrow returns the escrow ATA for src token.
 func (f *FusionOrder) GetEscrow(
 	maker domains.AddressLike,
 	srcTokenProgram domains.AddressLike,
@@ -218,8 +214,11 @@ func (f *FusionOrder) GetEscrow(
 		programId = domains.MustAddressFromString(idl.FusionSwapProgramAddress)
 	}
 
-	// Get PDA for escrow
-	orderHash := f.GetOrderHash()
+	orderHash, err := f.GetOrderHashWithError()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get order hash: %w", err)
+	}
+
 	seeds := [][]byte{
 		[]byte("escrow"),
 		maker.ToBuffer(),
@@ -230,7 +229,6 @@ func (f *FusionOrder) GetEscrow(
 		return nil, fmt.Errorf("failed to get escrow PDA: %w", err)
 	}
 
-	// Get ATA for escrow
 	ata, err := addresses.GetAta(escrow, f.orderConfig.SrcMint, srcTokenProgram)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get escrow ATA: %w", err)
@@ -239,59 +237,12 @@ func (f *FusionOrder) GetEscrow(
 	return ata, nil
 }
 
-// CalcTakingAmount calculates required taking amount to fill order for passed makingAmount at block time
-// Note: This is a simplified version that doesn't use AmountCalculator to avoid import cycle
-// For full calculation with auction and fees, use the amount-calculator package directly
-func (f *FusionOrder) CalcTakingAmount(makingAmount *big.Int, time uint32) *big.Int {
-	takingAmount := math.CalcTakingAmount(
-		makingAmount,
-		f.orderConfig.SrcAmount,
-		f.orderConfig.MinDstAmount,
-	)
-
-	// Note: For full calculation with auction rate bump, use amount-calculator package:
-	//   calculator := amountcalculator.NewAmountCalculator(...)
-	//   return calculator.GetRequiredTakingAmount(takingAmount, time)
-	return takingAmount
-}
-
-// GetUserReceiveAmount returns how much user will receive in dst token
-// Note: This method requires the amount-calculator package. Use it externally to avoid import cycles.
-func (f *FusionOrder) GetUserReceiveAmount(makingAmount *big.Int, time uint32) *big.Int {
-	// This method is deprecated - use amount-calculator package directly
-	// takingAmount := math.CalcTakingAmount(makingAmount, f.orderConfig.SrcAmount, f.orderConfig.MinDstAmount)
-	// Use amount-calculator package to get full calculation with fees
-	return big.NewInt(0)
-}
-
-// GetIntegratorFee returns fee in dstToken which integrator gets
-// Note: This method requires the amount-calculator package. Use it externally to avoid import cycles.
-func (f *FusionOrder) GetIntegratorFee(time uint32, makingAmount *big.Int) *big.Int {
-	// This method is deprecated - use amount-calculator package directly
-	return big.NewInt(0)
-}
-
-// GetProtocolFee returns fee in dstToken which protocol gets
-// Note: This method requires the amount-calculator package. Use it externally to avoid import cycles.
-func (f *FusionOrder) GetProtocolFee(time uint32, makingAmount *big.Int) *big.Int {
-	// This method is deprecated - use amount-calculator package directly
-	return big.NewInt(0)
-}
-
-// IsExpiredAt checks if order expired at a given time
+// IsExpiredAt checks if order expired at a given time.
 func (f *FusionOrder) IsExpiredAt(time uint32) bool {
 	return time > f.orderConfig.ExpirationTime
 }
 
-// GetCalculatorInfo returns information needed to create an AmountCalculator for this order
-// To create the calculator, use the amount-calculator package:
-//
-//	import amountcalculator "github.com/dawitel/solana-fusion-sdk-go/amount-calculator"
-//	auctionCalc := amountcalculator.FromAuctionData(order.AuctionDetails())
-//	feeCalc := amountcalculator.FromFeeConfig(order.Fees())
-//	calculator := amountcalculator.NewAmountCalculator(auctionCalc, feeCalc)
-//
-// Then use the calculator with helper methods like CalcTakingAmountWithCalculator
+// GetCalculatorInfo returns information needed to create an AmountCalculator for this order.
 func (f *FusionOrder) GetCalculatorInfo() struct {
 	AuctionDetails *AuctionDetails
 	Fees           *FeeConfig
@@ -396,103 +347,83 @@ type PointAndTimeDelta struct {
 	TimeDelta uint16
 }
 
-// SerializeBorsh serializes the order config to Borsh format
+// SerializeBorsh serializes the order config to Borsh format.
 func (c *ContractOrderConfig) SerializeBorsh() ([]byte, error) {
 	var data []byte
 
-	// id: u32
 	idBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(idBytes, c.ID)
 	data = append(data, idBytes...)
 
-	// srcAmount: u64
 	srcAmountBytes := make([]byte, 8)
 	binary.LittleEndian.PutUint64(srcAmountBytes, c.SrcAmount.Uint64())
 	data = append(data, srcAmountBytes...)
 
-	// minDstAmount: u64
 	minDstAmountBytes := make([]byte, 8)
 	binary.LittleEndian.PutUint64(minDstAmountBytes, c.MinDstAmount.Uint64())
 	data = append(data, minDstAmountBytes...)
 
-	// estimatedDstAmount: u64
 	estimatedDstAmountBytes := make([]byte, 8)
 	binary.LittleEndian.PutUint64(estimatedDstAmountBytes, c.EstimatedDstAmount.Uint64())
 	data = append(data, estimatedDstAmountBytes...)
 
-	// expirationTime: u32
 	expirationTimeBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(expirationTimeBytes, c.ExpirationTime)
 	data = append(data, expirationTimeBytes...)
 
-	// srcAssetIsNative: bool
 	if c.SrcAssetIsNative {
 		data = append(data, 1)
 	} else {
 		data = append(data, 0)
 	}
 
-	// dstAssetIsNative: bool
 	if c.DstAssetIsNative {
 		data = append(data, 1)
 	} else {
 		data = append(data, 0)
 	}
 
-	// fee: struct
-	// protocolFee: u16
 	protocolFeeBytes := make([]byte, 2)
 	binary.LittleEndian.PutUint16(protocolFeeBytes, c.Fee.ProtocolFee)
 	data = append(data, protocolFeeBytes...)
 
-	// integratorFee: u16
 	integratorFeeBytes := make([]byte, 2)
 	binary.LittleEndian.PutUint16(integratorFeeBytes, c.Fee.IntegratorFee)
 	data = append(data, integratorFeeBytes...)
 
-	// surplusPercentage: u8
 	data = append(data, byte(c.Fee.SurplusPercentage))
 
-	// maxCancellationPremium: u64
 	maxCancellationPremiumBytes := make([]byte, 8)
 	binary.LittleEndian.PutUint64(maxCancellationPremiumBytes, c.Fee.MaxCancellationPremium.Uint64())
 	data = append(data, maxCancellationPremiumBytes...)
 
-	// dutchAuctionData: struct
-	// startTime: u32
 	startTimeBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(startTimeBytes, c.DutchAuctionData.StartTime)
 	data = append(data, startTimeBytes...)
 
-	// duration: u32
 	durationBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(durationBytes, c.DutchAuctionData.Duration)
 	data = append(data, durationBytes...)
 
-	// initialRateBump: u16
 	initialRateBumpBytes := make([]byte, 2)
 	binary.LittleEndian.PutUint16(initialRateBumpBytes, c.DutchAuctionData.InitialRateBump)
 	data = append(data, initialRateBumpBytes...)
 
-	// pointsAndTimeDeltas: array
 	pointsCount := len(c.DutchAuctionData.PointsAndTimeDeltas)
 	pointsCountBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(pointsCountBytes, uint32(pointsCount))
 	data = append(data, pointsCountBytes...)
 
 	for _, point := range c.DutchAuctionData.PointsAndTimeDeltas {
-		// rateBump: u16
 		rateBumpBytes := make([]byte, 2)
 		binary.LittleEndian.PutUint16(rateBumpBytes, point.RateBump)
 		data = append(data, rateBumpBytes...)
 
-		// timeDelta: u16
 		timeDeltaBytes := make([]byte, 2)
 		binary.LittleEndian.PutUint16(timeDeltaBytes, point.TimeDelta)
 		data = append(data, timeDeltaBytes...)
 	}
 
-	// cancellationAuctionDuration: u32
 	cancellationAuctionDurationBytes := make([]byte, 4)
 	binary.LittleEndian.PutUint32(cancellationAuctionDurationBytes, c.CancellationAuctionDuration)
 	data = append(data, cancellationAuctionDurationBytes...)
@@ -500,49 +431,56 @@ func (c *ContractOrderConfig) SerializeBorsh() ([]byte, error) {
 	return data, nil
 }
 
-// SerializeOptionalAddress serializes an optional address for Borsh
+// SerializeOptionalAddress serializes an optional address for Borsh.
 func SerializeOptionalAddress(addr *domains.Address) []byte {
 	if addr == nil {
-		return []byte{0} // None
+		return []byte{0}
 	}
-	data := []byte{1} // Some
+	data := []byte{1}
 	data = append(data, addr.ToBuffer()...)
 	return data
 }
 
-// SerializeAddress serializes an address for Borsh
+// SerializeAddress serializes an address for Borsh.
 func SerializeAddress(addr *domains.Address) []byte {
 	return addr.ToBuffer()
 }
 
-// GetOrderHash returns the order hash (SHA256 of Borsh-serialized order)
-// Note: This method panics if serialization fails, which should never happen
-// for a properly constructed order. If you need error handling, use GetOrderHashWithError.
+// GetOrderHash returns the order hash (SHA256 of Borsh-serialized order).
 func (f *FusionOrder) GetOrderHash() []byte {
+	hash, err := f.GetOrderHashWithError()
+	if err != nil {
+		panic(fmt.Sprintf("failed to get order hash: %v", err))
+	}
+	return hash
+}
+
+// GetOrderHashWithError returns the order hash (SHA256 of Borsh-serialized order) with error handling.
+func (f *FusionOrder) GetOrderHashWithError() ([]byte, error) {
 	orderConfig := f.Build()
 	borshData, err := orderConfig.SerializeBorsh()
 	if err != nil {
-		panic(fmt.Sprintf("failed to serialize order config for hash: %v", err))
+		return nil, fmt.Errorf("failed to serialize order config for hash: %w", err)
 	}
 
-	// Hash the order config
 	hash := sha256.Sum256(borshData)
 
-	// Append optional addresses
+	var protocolDstAta, integratorDstAta *domains.Address
 	if f.orderConfig.Fees != nil {
-		hash = sha256.Sum256(append(hash[:], SerializeOptionalAddress(f.orderConfig.Fees.ProtocolDstAta)...))
-		hash = sha256.Sum256(append(hash[:], SerializeOptionalAddress(f.orderConfig.Fees.IntegratorDstAta)...))
+		protocolDstAta = f.orderConfig.Fees.ProtocolDstAta
+		integratorDstAta = f.orderConfig.Fees.IntegratorDstAta
 	}
+	hash = sha256.Sum256(append(hash[:], SerializeOptionalAddress(protocolDstAta)...))
+	hash = sha256.Sum256(append(hash[:], SerializeOptionalAddress(integratorDstAta)...))
 
-	// Append addresses
 	hash = sha256.Sum256(append(hash[:], SerializeAddress(f.orderConfig.SrcMint)...))
 	hash = sha256.Sum256(append(hash[:], SerializeAddress(f.orderConfig.DstMint)...))
 	hash = sha256.Sum256(append(hash[:], SerializeAddress(f.orderConfig.Receiver)...))
 
-	return hash[:]
+	return hash[:], nil
 }
 
-// GetOrderHashBase58 returns the base58 encoded order hash
+// GetOrderHashBase58 returns the base58 encoded order hash.
 func (f *FusionOrder) GetOrderHashBase58() string {
 	return base58.Encode(f.GetOrderHash())
 }

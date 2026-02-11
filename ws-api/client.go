@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 	"sync"
 
@@ -159,7 +160,8 @@ func (c *WebSocketClient) Off(event WebSocketEvent, cb interface{}) {
 
 	callbacks := c.callbacks[event]
 	for i, existingCb := range callbacks {
-		if existingCb == cb {
+		// Use reflect to compare function pointers since direct comparison doesn't work
+		if reflect.DeepEqual(existingCb, cb) {
 			c.callbacks[event] = append(callbacks[:i], callbacks[i+1:]...)
 			break
 		}
@@ -220,26 +222,23 @@ func (c *WebSocketClient) OnPong(cb OnPongCb) {
 // Close closes the WebSocket connection
 func (c *WebSocketClient) Close() error {
 	c.mu.Lock()
-	defer c.mu.Unlock()
-
+	
+	var err error
 	if c.conn != nil {
-		err := c.conn.Close()
+		err = c.conn.Close()
 		c.conn = nil
-		c.connected = false
+	}
+	c.connected = false
 
-		callbacks := make([]OnCloseCb, len(c.closeCallbacks))
-		copy(callbacks, c.closeCallbacks)
-		c.mu.Unlock()
+	callbacks := make([]OnCloseCb, len(c.closeCallbacks))
+	copy(callbacks, c.closeCallbacks)
+	c.mu.Unlock()
 
-		for _, cb := range callbacks {
-			cb()
-		}
-
-		c.mu.Lock()
-		return err
+	for _, cb := range callbacks {
+		cb()
 	}
 
-	return nil
+	return err
 }
 
 // IsConnected returns whether the WebSocket is connected

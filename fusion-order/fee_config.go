@@ -41,22 +41,26 @@ func NewFeeConfig(
 	integratorFee *domains.Bps,
 	surplusShare *domains.Bps,
 ) (*FeeConfig, error) {
-	// Validate protocol fee config
-	isProtocolFeeValid := (protocolDstAta == nil &&
+	// Validate protocol fee config (matches TypeScript logic exactly)
+	// Invalid: (protocolDstAta is nil AND (protocolFee OR surplusShare is non-zero)) OR
+	//          (protocolDstAta is not nil AND both protocolFee and surplusShare are zero)
+	isProtocolFeeInvalid := (protocolDstAta == nil &&
 		!(protocolFee.IsZero() && surplusShare.IsZero())) ||
 		(protocolDstAta != nil &&
 			protocolFee.IsZero() &&
 			surplusShare.IsZero())
 
-	if isProtocolFeeValid {
+	if isProtocolFeeInvalid {
 		return nil, errors.New("protocol fee config mismatch")
 	}
 
-	// Validate integrator fee config
-	isIntegratorFeeValid := (integratorDstAta == nil && !integratorFee.IsZero()) ||
+	// Validate integrator fee config (matches TypeScript logic exactly)
+	// Invalid: (integratorDstAta is nil AND integratorFee is non-zero) OR
+	//          (integratorDstAta is not nil AND integratorFee is zero)
+	isIntegratorFeeInvalid := (integratorDstAta == nil && !integratorFee.IsZero()) ||
 		(integratorDstAta != nil && integratorFee.IsZero())
 
-	if isIntegratorFeeValid {
+	if isIntegratorFeeInvalid {
 		return nil, errors.New("integrator fee config mismatch")
 	}
 
