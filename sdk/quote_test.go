@@ -4,8 +4,8 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api/quoter"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/quoter"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 func TestQuoteFromJSON_Success(t *testing.T) {

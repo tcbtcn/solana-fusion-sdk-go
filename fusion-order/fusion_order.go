@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	"github.com/dawitel/solana-fusion-sdk-go/idl"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/addresses"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/validation"
 	"github.com/mr-tron/base58"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/idl"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/addresses"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/validation"
 )
 
 const (

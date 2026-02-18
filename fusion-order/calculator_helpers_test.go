@@ -4,8 +4,8 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/time"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/time"
 )
 
 type mockCalculator struct {

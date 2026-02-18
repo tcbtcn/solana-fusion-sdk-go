@@ -1,6 +1,6 @@
 package types
 
-import "github.com/dawitel/solana-fusion-sdk-go/domains"
+import "github.com/tcbtcn/solana-fusion-sdk-go/domains"
 
 // AccountMeta represents account metadata for a transaction instruction
 type AccountMeta struct {

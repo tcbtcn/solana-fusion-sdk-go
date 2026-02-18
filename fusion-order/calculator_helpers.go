@@ -3,7 +3,7 @@ package fusionorder
 import (
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/utils/math"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/math"
 )
 
 // Calculator is an interface for amount calculators

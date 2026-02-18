@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api"
-	"github.com/dawitel/solana-fusion-sdk-go/api/http"
-	"github.com/dawitel/solana-fusion-sdk-go/contracts"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	"github.com/dawitel/solana-fusion-sdk-go/sdk"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/http"
+	"github.com/tcbtcn/solana-fusion-sdk-go/contracts"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/sdk"
 )
 
 func main() {

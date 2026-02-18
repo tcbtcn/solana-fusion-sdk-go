@@ -3,7 +3,7 @@ package types
 import (
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 func TestNewTransactionInstruction(t *testing.T) {

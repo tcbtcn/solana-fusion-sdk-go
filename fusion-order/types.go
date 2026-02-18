@@ -3,7 +3,7 @@ package fusionorder
 import (
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 // OrderInfoData represents order information data

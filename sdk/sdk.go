@@ -6,12 +6,12 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api"
-	"github.com/dawitel/solana-fusion-sdk-go/api/http"
-	"github.com/dawitel/solana-fusion-sdk-go/api/orders"
-	"github.com/dawitel/solana-fusion-sdk-go/api/quoter"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/http"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/orders"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/quoter"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
 )
 
 // Sdk is the main SDK client for interacting with the Solana Fusion API.

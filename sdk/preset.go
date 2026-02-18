@@ -3,7 +3,7 @@ package sdk
 import (
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api/quoter"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/quoter"
 )
 
 // Preset represents a preset configuration

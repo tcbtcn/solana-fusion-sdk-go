@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 var (

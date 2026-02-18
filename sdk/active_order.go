@@ -3,9 +3,9 @@ package sdk
 import (
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api/orders"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/orders"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
 )
 
 // ActiveOrder represents an active order

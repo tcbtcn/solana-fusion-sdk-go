@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api/quoter"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/quoter"
 )
 
 func TestPresetFromJSON_Success(t *testing.T) {

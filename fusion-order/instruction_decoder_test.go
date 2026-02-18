@@ -5,10 +5,10 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	"github.com/dawitel/solana-fusion-sdk-go/idl"
-	"github.com/dawitel/solana-fusion-sdk-go/types"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/time"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/idl"
+	"github.com/tcbtcn/solana-fusion-sdk-go/types"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/time"
 )
 
 func TestFromCreateInstruction(t *testing.T) {

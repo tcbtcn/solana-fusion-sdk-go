@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
-	"github.com/dawitel/solana-fusion-sdk-go/idl"
-	"github.com/dawitel/solana-fusion-sdk-go/types"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/addresses"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
+	"github.com/tcbtcn/solana-fusion-sdk-go/idl"
+	"github.com/tcbtcn/solana-fusion-sdk-go/types"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/addresses"
 )
 
 // FusionSwapContractAddress is the default FusionSwap contract address

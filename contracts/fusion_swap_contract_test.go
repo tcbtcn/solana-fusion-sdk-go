@@ -4,9 +4,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/time"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/time"
 )
 
 func TestFusionSwapContract_Create(t *testing.T) {

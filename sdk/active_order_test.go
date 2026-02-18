@@ -4,8 +4,8 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api/orders"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/orders"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 func TestActiveOrderFromJSON_Success(t *testing.T) {

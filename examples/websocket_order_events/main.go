@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	wsapi "github.com/dawitel/solana-fusion-sdk-go/ws-api"
+	wsapi "github.com/tcbtcn/solana-fusion-sdk-go/ws-api"
 )
 
 func main() {

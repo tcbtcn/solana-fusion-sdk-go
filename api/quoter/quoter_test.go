@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api"
-	clienthttp "github.com/dawitel/solana-fusion-sdk-go/api/http"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api"
+	clienthttp "github.com/tcbtcn/solana-fusion-sdk-go/api/http"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 type mockHTTPClient struct {

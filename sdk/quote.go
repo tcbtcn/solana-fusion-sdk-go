@@ -4,11 +4,11 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api/quoter"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
-	"github.com/dawitel/solana-fusion-sdk-go/utils"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/time"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/quoter"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/time"
 )
 
 // Quote represents a quote for a swap

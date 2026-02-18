@@ -1,6 +1,6 @@
 package contracts
 
-import "github.com/dawitel/solana-fusion-sdk-go/domains"
+import "github.com/tcbtcn/solana-fusion-sdk-go/domains"
 
 // WhitelistContractAddress is the whitelist contract address
 var WhitelistContractAddress = domains.MustAddressFromString("5jzZhrzqkbdwp5d3J1XbmaXMRnqeXimM1mDMoGHyvR7S")

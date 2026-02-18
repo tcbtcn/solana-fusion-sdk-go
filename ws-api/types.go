@@ -3,7 +3,7 @@ package wsapi
 import (
 	"errors"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api"
 )
 
 // WebSocketEvent represents WebSocket connection events

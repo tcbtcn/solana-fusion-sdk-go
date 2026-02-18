@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
 )
 
 func TestAuctionCalculator_CalcRateBump(t *testing.T) {

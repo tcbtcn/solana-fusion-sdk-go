@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	"github.com/dawitel/solana-fusion-sdk-go/idl"
-	"github.com/dawitel/solana-fusion-sdk-go/types"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/idl"
+	"github.com/tcbtcn/solana-fusion-sdk-go/types"
 )
 
 // FromCreateInstruction decodes a FusionOrder from a create instruction

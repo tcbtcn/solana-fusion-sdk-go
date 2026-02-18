@@ -1,7 +1,7 @@
 package fusionorder
 
 import (
-	"github.com/dawitel/solana-fusion-sdk-go/utils/validation"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/validation"
 )
 
 // AuctionPoint represents a point in the auction curve

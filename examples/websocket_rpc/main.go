@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api"
-	"github.com/dawitel/solana-fusion-sdk-go/ws-api"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api"
+	"github.com/tcbtcn/solana-fusion-sdk-go/ws-api"
 )
 
 func main() {

@@ -3,9 +3,9 @@ package amountcalculator
 import (
 	"math/big"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/math"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/math"
 )
 
 // FeeCalculator calculates fees for orders

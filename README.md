@@ -5,7 +5,7 @@ Production-grade Go SDK for creating and managing fusion orders on Solana throug
 ## Installation
 
 ```bash
-go get github.com/dawitel/solana-fusion-sdk-go
+go get github.com/tcbtcn/solana-fusion-sdk-go
 ```
 
 ## Quick Start
@@ -18,10 +18,10 @@ import (
     "log"
     "math/big"
 
-    "github.com/dawitel/solana-fusion-sdk-go/api"
-    "github.com/dawitel/solana-fusion-sdk-go/api/http"
-    "github.com/dawitel/solana-fusion-sdk-go/domains"
-    "github.com/dawitel/solana-fusion-sdk-go/sdk"
+    "github.com/tcbtcn/solana-fusion-sdk-go/api"
+    "github.com/tcbtcn/solana-fusion-sdk-go/api/http"
+    "github.com/tcbtcn/solana-fusion-sdk-go/domains"
+    "github.com/tcbtcn/solana-fusion-sdk-go/sdk"
 )
 
 func main() {
@@ -124,7 +124,7 @@ The WebSocket API provides real-time order updates and RPC functionality.
 Creates a new WebSocket API client.
 
 ```go
-import "github.com/dawitel/solana-fusion-sdk-go/ws-api"
+import "github.com/tcbtcn/solana-fusion-sdk-go/ws-api"
 
 ws, err := wsapi.NewWebSocketApi(wsapi.WsApiConfig{
     URL:     "wss://api.1inch.dev/fusion/ws",
@@ -302,8 +302,8 @@ The SDK supports decoding FusionOrders from Solana transaction instructions:
 
 ```go
 import (
-    "github.com/dawitel/solana-fusion-sdk-go/fusionorder"
-    "github.com/dawitel/solana-fusion-sdk-go/types"
+    "github.com/tcbtcn/solana-fusion-sdk-go/fusionorder"
+    "github.com/tcbtcn/solana-fusion-sdk-go/types"
 )
 
 // Decode from create instruction
@@ -325,8 +325,8 @@ Calculate fees and amounts with auction accounting:
 
 ```go
 import (
-    amountcalculator "github.com/dawitel/solana-fusion-sdk-go/amount-calculator"
-    fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
+    amountcalculator "github.com/tcbtcn/solana-fusion-sdk-go/amount-calculator"
+    fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
 )
 
 // Create calculator from order

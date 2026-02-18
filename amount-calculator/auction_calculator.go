@@ -3,8 +3,8 @@ package amountcalculator
 import (
 	"math/big"
 
-	fusionorder "github.com/dawitel/solana-fusion-sdk-go/fusion-order"
-	"github.com/dawitel/solana-fusion-sdk-go/utils/math"
+	fusionorder "github.com/tcbtcn/solana-fusion-sdk-go/fusion-order"
+	"github.com/tcbtcn/solana-fusion-sdk-go/utils/math"
 )
 
 // RateBumpDenominator is 100% (100,000)

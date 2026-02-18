@@ -6,11 +6,11 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/dawitel/solana-fusion-sdk-go/api"
-	"github.com/dawitel/solana-fusion-sdk-go/api/http"
-	"github.com/dawitel/solana-fusion-sdk-go/api/orders"
-	"github.com/dawitel/solana-fusion-sdk-go/api/quoter"
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/http"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/orders"
+	"github.com/tcbtcn/solana-fusion-sdk-go/api/quoter"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 type mockHTTPClient struct {

@@ -1,4 +1,4 @@
-module github.com/dawitel/solana-fusion-sdk-go
+module github.com/tcbtcn/solana-fusion-sdk-go
 
 go 1.25.6
 

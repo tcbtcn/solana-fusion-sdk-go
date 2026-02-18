@@ -3,8 +3,8 @@ package addresses
 import (
 	"fmt"
 
-	"github.com/dawitel/solana-fusion-sdk-go/domains"
 	solana "github.com/gagliardetto/solana-go"
+	"github.com/tcbtcn/solana-fusion-sdk-go/domains"
 )
 
 // GetPda generates a Program Derived Address (PDA) from seeds
